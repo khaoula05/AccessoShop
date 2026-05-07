@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="navbar">
+    <nav class="navbar">
+        <a th:href="@{/}" class="navbar-brand">Accesso<span>Shop</span></a>
+
+        <ul>
+            <li><a th:href="@{/products(category=boucle)}">Boucles</a></li>
+            <li><a th:href="@{/products(category=montre)}">Montres</a></li>
+            <li><a th:href="@{/products(category=collier)}">Colliers</a></li>
+            <li><a th:href="@{/products(category=bague)}">Bagues</a></li>
+            <li><a th:href="@{/products(category=bracelet)}">Bracelets</a></li>
+            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/products/admin/new}">Admin</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <div sec:authorize="isAnonymous()" style="display:flex;gap:10px;">
+                <a th:href="@{/login}" class="btn-outline">Connexion</a>
+                <a th:href="@{/register}" class="btn-outline">Inscription</a>
+            </div>
+            <div sec:authorize="isAuthenticated()" style="display:flex;align-items:center;gap:15px;">
+                <span style="font-size:0.85rem;color:var(--mid-gray);">
+                    Bonjour, <span sec:authentication="name" style="color:var(--gold);font-weight:600;">Utilisateur</span>
+                </span>
+                <form th:action="@{/logout}" method="post" style="margin:0;">
+                    <button type="submit" class="btn-link">Déconnexion</button>
+                </form>
+            </div>
+            <a th:href="@{/cart}" class="cart-btn">🛒 Panier</a>
+        </div>
+    </nav>
+</div>
+</body>
+</html>

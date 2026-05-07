@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer">
+    <div class="footer-grid">
+        <div>
+            <div class="footer-brand">Accesso<span>Shop</span></div>
+            <p class="footer-desc">Votre destination premium pour les accessoires de mode. Des pièces soigneusement sélectionnées pour sublimer votre style.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Boutique</h4>
+            <ul>
+                <li><a th:href="@{/products?category=Montres}">Montres</a></li>
+                <li><a th:href="@{/products?category=Sacs}">Sacs</a></li>
+                <li><a th:href="@{/products?category=Bijoux}">Bijoux</a></li>
+                <li><a th:href="@{/products?category=Lunettes}">Lunettes</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Service</h4>
+            <ul>
+                <li><a href="#">Livraison</a></li>
+                <li><a href="#">Retours</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Compte</h4>
+            <ul>
+                <li><a th:href="@{/login}">Connexion</a></li>
+                <li><a th:href="@{/register}">Inscription</a></li>
+                <li><a th:href="@{/cart}">Mon Panier</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2024 AccessoShop — Projet E-Commerce BAC+3 | Développé avec Spring Boot &amp; Thymeleaf</p>
+    </div>
+</footer>
+</body>
+</html>

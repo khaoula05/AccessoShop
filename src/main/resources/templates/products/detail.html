@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${product.name} + ' — AccessoShop'">Produit</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Breadcrumb -->
+<div style="padding:1rem 7%;font-size:0.82rem;color:var(--mid-gray);border-bottom:1px solid var(--light-gray);letter-spacing:0.04em;">
+    <a th:href="@{/}" style="color:var(--mid-gray);">Accueil</a>
+    <span style="margin:0 0.5rem;color:var(--light-gray);">›</span>
+    <a th:href="@{/products}" style="color:var(--mid-gray);">Boutique</a>
+    <span style="margin:0 0.5rem;color:var(--light-gray);">›</span>
+    <a th:href="@{/products(category=${product.category})}" style="color:var(--mid-gray);" th:text="${product.category}">Catégorie</a>
+    <span style="margin:0 0.5rem;color:var(--light-gray);">›</span>
+    <span th:text="${product.name}" style="color:var(--black);font-weight:500;">Produit</span>
+</div>
+
+<!-- Product Detail -->
+<div class="product-detail">
+    <!-- Gallery -->
+    <div class="product-gallery">
+        <div class="product-main-img">
+            <img th:src="${product.imageUrl}" th:alt="${product.name}"
+                 onerror="this.style.display='none'"/>
+        </div>
+        <div style="margin-top:1rem;display:flex;align-items:center;gap:0.5rem;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div>
+            <span style="font-size:0.82rem;color:var(--mid-gray);">
+                En stock — <span th:text="${product.stock}">10</span> disponibles
+            </span>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="product-detail-info">
+        <span class="category-tag" th:text="${product.category}">Catégorie</span>
+        <h1 th:text="${product.name}">Nom du produit</h1>
+
+        <div style="display:flex;align-items:center;gap:0.8rem;margin:1rem 0;">
+            <span class="stars" style="font-size:1.1rem;">★★★★★</span>
+            <span style="font-weight:600;" th:text="${#numbers.formatDecimal(product.rating, 1, 1)}">4.5</span>
+            <span style="color:var(--mid-gray);font-size:0.88rem;">· 124 avis</span>
+        </div>
+
+        <div class="detail-price">
+            <span th:text="${#numbers.formatDecimal(product.price, 1, 2)}">0.00</span> MAD
+        </div>
+
+        <p class="product-desc" th:text="${product.description}">Description du produit.</p>
+
+        <!-- Features -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:2rem;">
+            <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem;background:var(--cream);border-radius:8px;">
+                <span style="font-size:1.1rem;">🚚</span>
+                <span style="font-size:0.82rem;font-weight:500;">Livraison gratuite dès 500 MAD</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem;background:var(--cream);border-radius:8px;">
+                <span style="font-size:1.1rem;">🔄</span>
+                <span style="font-size:0.82rem;font-weight:500;">Retour sous 30 jours</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem;background:var(--cream);border-radius:8px;">
+                <span style="font-size:1.1rem;">🔒</span>
+                <span style="font-size:0.82rem;font-weight:500;">Paiement sécurisé</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem;background:var(--cream);border-radius:8px;">
+                <span style="font-size:1.1rem;">✅</span>
+                <span style="font-size:0.82rem;font-weight:500;">Authenticité garantie</span>
+            </div>
+        </div>
+
+        <!-- Ajout panier (authentifié) -->
+        <div sec:authorize="isAuthenticated()">
+            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
+                <div class="qty-selector">
+                    <label style="font-weight:500;font-size:0.88rem;">Quantité :</label>
+                    <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                    <input type="number" name="quantity" id="qty" value="1" min="1" th:max="${product.stock}"
+                           class="qty-display"/>
+                    <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+                <button type="submit" class="add-to-cart-btn">🛒 Ajouter au panier</button>
+            </form>
+        </div>
+
+        <!-- Non authentifié -->
+        <div sec:authorize="isAnonymous()" style="margin-top:1rem;">
+            <a th:href="@{/login}" class="add-to-cart-btn">🔑 Se connecter pour acheter</a>
+        </div>
+    </div>
+</div>
+
+<!-- Produits similaires -->
+<section class="section" style="background:var(--cream);" th:if="${!#lists.isEmpty(related)}">
+    <div class="section-header">
+        <h2>Vous aimerez aussi</h2>
+        <div class="section-divider"></div>
+    </div>
+    <div class="products-grid">
+        <div th:each="rp, iter : ${related}" th:if="${iter.index < 4 and rp.id != product.id}" class="product-card">
+            <a th:href="@{/products/{id}(id=${rp.id})}" style="display:block;color:inherit;">
+                <div class="product-img">
+                    <img th:src="${rp.imageUrl}" th:alt="${rp.name}" onerror="this.style.display='none'"/>
+                </div>
+                <div class="product-info">
+                    <div class="category-tag" th:text="${rp.category}">Cat</div>
+                    <h3 th:text="${rp.name}">Nom</h3>
+                    <div class="product-footer">
+                        <div class="price"><th:block th:text="${#numbers.formatDecimal(rp.price, 1, 2)}">0</th:block> <span>MAD</span></div>
+                        <div class="add-btn">→</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+function changeQty(delta) {
+    const input = document.getElementById('qty');
+    const val = parseInt(input.value) + delta;
+    if (val >= 1 && val <= parseInt(input.max)) input.value = val;
+}
+</script>
+</body>
+</html>

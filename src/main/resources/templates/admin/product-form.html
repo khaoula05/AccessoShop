@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Administration - Produit</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<header class="page-header">
+    <p class="eyebrow">Administration</p>
+    <h1>Ajouter un produit</h1>
+    <p class="page-subtitle">Choisissez la categorie d'accessoire puis enregistrez. Le produit apparaitra dans sa collection.</p>
+</header>
+
+<main class="admin-page">
+    <form th:action="@{/products/admin/save}" th:object="${product}" method="post" class="admin-form">
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="form-group">
+            <label for="name">Nom du produit</label>
+            <input id="name" type="text" th:field="*{name}" placeholder="Ex: Bracelet argent premium" required/>
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Erreur</p>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="category">Categorie d'accessoire</label>
+                <select id="category" th:field="*{category}" required>
+                    <option value="">Choisir une categorie</option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}">Categorie</option>
+                </select>
+                <p class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}">Erreur</p>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Prix MAD</label>
+                <input id="price" type="number" th:field="*{price}" min="1" step="0.01" required/>
+                <p class="field-error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">Erreur</p>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="stock">Stock</label>
+                <input id="stock" type="number" th:field="*{stock}" min="0" step="1"/>
+                <p class="field-error" th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}">Erreur</p>
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Note</label>
+                <input id="rating" type="number" th:field="*{rating}" min="0" max="5" step="0.1"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="imageUrl">Image URL</label>
+            <input id="imageUrl" type="text" th:field="*{imageUrl}" placeholder="https://... ou /images/bracelet1.jpg"/>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" th:field="*{description}" placeholder="Description courte du produit"></textarea>
+        </div>
+
+        <label class="check-row">
+            <input type="checkbox" th:field="*{featured}"/>
+            <span>Afficher aussi ce produit dans les coups de coeur de l'accueil</span>
+        </label>
+
+        <div class="admin-form-actions">
+            <a th:href="@{/products}" class="btn-secondary">Annuler</a>
+            <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+    </form>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

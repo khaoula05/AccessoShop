@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AccessoShop — Accessoires Premium</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>"/>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+    <div class="hero-text">
+        <div class="hero-badge">✨ Nouvelle Collection 2024</div>
+        <h1>L'élégance au<br/>bout des <em>doigts</em></h1>
+        <p>Découvrez notre collection exclusive d'accessoires premium — montres, colliers, bagues et bracelets sélectionnés avec soin pour affirmer votre style.</p>
+        <div class="hero-actions">
+            <a th:href="@{/products}" class="btn-primary">Découvrir la boutique →</a>
+            <a th:href="@{/products(category=montre)}" class="btn-secondary">Nos montres</a>
+        </div>
+    </div>
+    <div class="hero-image">
+        <div class="hero-img-card">
+            <img th:src="@{/images/gold1.jpg}" alt="Bijou doré"/>
+        </div>
+        <div class="hero-img-card">
+            <img th:src="@{/images/bracelet1.jpg}" alt="Bracelet élégant"/>
+        </div>
+    </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<div class="stats-banner">
+    <div class="stat-item"><h3>500+</h3><p>Produits disponibles</p></div>
+    <div class="stat-item"><h3>4.9★</h3><p>Note moyenne</p></div>
+    <div class="stat-item"><h3>24h</h3><p>Livraison express</p></div>
+    <div class="stat-item"><h3>10K+</h3><p>Clients satisfaits</p></div>
+</div>
+
+<!-- ===== CATEGORIES ===== -->
+<section class="section">
+    <div class="section-header">
+        <h2>Nos Collections</h2>
+        <div class="section-divider"></div>
+        <p>Explorez nos catégories exclusives</p>
+    </div>
+    <div class="categories-grid">
+        <a th:href="@{/products(category=montre)}" class="category-card">
+            <img th:src="@{/images/montre1.jpg}" alt="Montres"/>
+            <div class="category-overlay"><h3>Montres</h3><span>L'heure avec élégance</span></div>
+        </a>
+        <a th:href="@{/products(category=collier)}" class="category-card">
+            <img th:src="@{/images/collier1.jpg}" alt="Colliers"/>
+            <div class="category-overlay"><h3>Colliers</h3><span>Brillance naturelle</span></div>
+        </a>
+        <a th:href="@{/products(category=bague)}" class="category-card">
+            <img th:src="@{/images/bague1.jpg}" alt="Bagues"/>
+            <div class="category-overlay"><h3>Bagues</h3><span>Style et raffinement</span></div>
+        </a>
+        <a th:href="@{/products(category=bracelet)}" class="category-card">
+            <img th:src="@{/images/bracelet1.jpg}" alt="Bracelets"/>
+            <div class="category-overlay"><h3>Bracelets</h3><span>Élégance au poignet</span></div>
+        </a>
+    </div>
+</section>
+
+<!-- ===== FEATURED PRODUCTS ===== -->
+<section class="section" style="padding-top:0; background:var(--cream);">
+    <div class="section-header" style="padding-top:4rem;">
+        <h2>Coups de Cœur</h2>
+        <div class="section-divider"></div>
+        <p>Nos articles les plus appréciés</p>
+    </div>
+    <div class="products-grid">
+        <div th:each="product : ${featuredProducts}" class="product-card animate-in">
+            <div class="product-img">
+                <div class="product-badge">⭐ Favoris</div>
+                <img th:src="${product.imageUrl}" th:alt="${product.name}"
+                     onerror="this.parentNode.style.background='var(--cream)'; this.style.display='none'"/>
+            </div>
+            <div class="product-info">
+                <div class="category-tag" th:text="${product.category}">Catégorie</div>
+                <h3 th:text="${product.name}">Nom du produit</h3>
+                <div class="product-rating">
+                    <span class="stars">★★★★★</span>
+                    <span style="font-size:0.8rem;color:#999;" th:text="${#numbers.formatDecimal(product.rating, 1, 1)}">4.5</span>
+                </div>
+                <div class="product-footer">
+                    <div class="price">
+                        <span th:text="${#numbers.formatDecimal(product.price, 1, 2)}">0.00</span>
+                        <span>MAD</span>
+                    </div>
+                    <a th:href="@{/products/{id}(id=${product.id})}" class="add-btn" title="Voir le produit">→</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:center; margin-top:3rem;">
+        <a th:href="@{/products}" class="btn-primary">Voir toute la collection →</a>
+    </div>
+</section>
+
+<!-- ===== WHY US ===== -->
+<section class="section">
+    <div class="section-header">
+        <h2>Pourquoi AccessoShop ?</h2>
+        <div class="section-divider"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;text-align:center;">
+        <div style="padding:2.5rem 2rem;background:var(--cream);border-radius:16px;border:1px solid rgba(0,0,0,0.05);">
+            <div style="font-size:2.8rem;margin-bottom:1rem;">🏆</div>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:0.8rem;">Qualité Premium</h3>
+            <p style="color:var(--mid-gray);font-size:0.93rem;line-height:1.7;">Chaque pièce est soigneusement sélectionnée par nos experts pour garantir une qualité exceptionnelle.</p>
+        </div>
+        <div style="padding:2.5rem 2rem;background:var(--cream);border-radius:16px;border:1px solid rgba(0,0,0,0.05);">
+            <div style="font-size:2.8rem;margin-bottom:1rem;">🚚</div>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:0.8rem;">Livraison Rapide</h3>
+            <p style="color:var(--mid-gray);font-size:0.93rem;line-height:1.7;">Recevez vos commandes en 24 à 48 heures partout au Maroc. Livraison gratuite dès 500 MAD.</p>
+        </div>
+        <div style="padding:2.5rem 2rem;background:var(--cream);border-radius:16px;border:1px solid rgba(0,0,0,0.05);">
+            <div style="font-size:2.8rem;margin-bottom:1rem;">🔄</div>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:0.8rem;">Retours Faciles</h3>
+            <p style="color:var(--mid-gray);font-size:0.93rem;line-height:1.7;">30 jours pour retourner votre commande si vous n'êtes pas satisfait, sans question.</p>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
