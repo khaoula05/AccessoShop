@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main", "khaoula-AIT-ATTA-dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" , "Nourelhouda-ELKASRA-dev" ]
 
 jobs:
   build-and-analyze:
