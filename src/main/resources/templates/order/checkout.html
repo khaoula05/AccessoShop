@@ -1,262 +1,177 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="fr">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Passer la commande — AccessoShop</title>
+    <title>Finaliser la commande — AccessoShop</title>
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <link th:href="@{https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap}" rel="stylesheet"/>
+    <style>
+        .checkout-container { display: flex; gap: 3rem; max-width: 1200px; margin: 3rem auto; padding: 0 2rem; font-family: 'Playfair Display', serif; }
+        .checkout-form-side { flex: 1.4; display: flex; flex-direction: column; gap: 2rem; }
+        .checkout-summary-side { flex: 1; background: #F9F6F0; border-radius: 20px; padding: 2.5rem; height: fit-content; box-sizing: border-box; }
+        .checkout-summary-side h3 { font-size: 1.6rem; font-weight: 500; margin-top: 0; margin-bottom: 2rem; color: #1a1a1a; letter-spacing: 0.5px; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; color: #666; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; }
+        .summary-row span:last-child { color: #1a1a1a; font-weight: 500; }
+        .summary-total { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #ddd; color: #000; }
+        .summary-total span:first-child { font-size: 1.2rem; font-weight: bold; }
+        .summary-total span:last-child { font-size: 1.3rem; font-weight: bold; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .promo-container { display: flex; gap: 0.5rem; margin-top: 2rem; margin-bottom: 1.5rem; }
+        .promo-input { flex: 1; padding: 0.75rem 1.25rem; border: 1px solid #ddd; border-radius: 25px; background: #fff; font-size: 0.9rem; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-promo-ok { background: #000; color: #fff; border: none; padding: 0.75rem 1.25rem; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 0.85rem; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.2s; }
+        .btn-submit-order { width: 100%; padding: 1.1rem; background: #000000; color: white; border: none; border-radius: 30px; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .card-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .card-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; color: #1a1a1a; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #1a1a1a; }
+        .form-group input { padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; background-color: #fff; font-size: 0.9rem; }
+        .payment-methods-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .payment-radio { display: none; }
+        .payment-label { border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 0.5rem; font-weight: 500; background: #fff; transition: all 0.2s; color: #1a1a1a; }
+        .payment-radio:checked + .payment-label { border-color: #000; background-color: #F9F6F0; box-shadow: 0 0 0 1px #000; font-weight: 700; }
+        #credit-card-info { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+        .security-badges { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1.5rem; font-size: 0.8rem; color: #666; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .error-alert { background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<!-- Page Header -->
-<div class="page-header">
-    <p style="color:var(--gold);font-size:0.82rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:0.5rem;">Commande</p>
-    <h1>Finaliser votre achat</h1>
-    <!-- Étapes -->
-    <div style="display:flex;justify-content:center;align-items:center;gap:1rem;margin-top:1.5rem;font-size:0.82rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">
-        <span style="color:var(--mid-gray);">1. Panier</span>
-        <span style="color:var(--light-gray);">——</span>
-        <span style="color:var(--gold);">2. Livraison</span>
-        <span style="color:var(--light-gray);">——</span>
-        <span style="color:var(--mid-gray);">3. Paiement</span>
-        <span style="color:var(--light-gray);">——</span>
-        <span style="color:var(--mid-gray);">4. Confirmation</span>
-    </div>
+<div class="page-header" style="text-align: center; margin-top: 2rem;">
+    <h1>Finaliser ma commande</h1>
 </div>
 
-<div class="checkout-page">
-    <!-- FORMULAIRE -->
-    <div>
-        <form th:action="@{/order/place}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;" th:if="${error}">
+    <div class="error-alert" th:text="${error}">Une erreur est survenue</div>
+</div>
 
-            <!-- Informations personnelles -->
-            <div class="checkout-card">
-                <div class="checkout-section-title">👤 Informations personnelles</div>
-                <div class="form-row">
+<form th:action="@{/order/checkout}" th:object="${order}" method="post">
+    <div class="checkout-container">
+        
+        <div class="checkout-form-side">
+            <div class="card-box">
+                <div class="card-title">📦 Informations de livraison</div>
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="prenom">Prénom</label>
-                        <input type="text" id="prenom" name="prenom" placeholder="Votre prénom" required/>
+                        <label>Prénom</label>
+                        <input type="text" name="firstName" placeholder="Votre prénom" required="required"/>
                     </div>
                     <div class="form-group">
-                        <label for="nom">Nom de famille</label>
-                        <input type="text" id="nom" name="nom" placeholder="Votre nom" required/>
+                        <label>Nom</label>
+                        <input type="text" name="lastName" placeholder="Votre nom" required="required"/>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">Adresse email</label>
-                        <input type="email" id="email" name="email" placeholder="votre@email.com" required/>
+                    <div class="form-group full-width">
+                        <label>Adresse complète</label>
+                        <input type="text" name="shippingAddress" placeholder="N° de rue, appartement, quartier..." required="required"/>
                     </div>
                     <div class="form-group">
-                        <label for="telephone">Téléphone</label>
-                        <input type="tel" id="telephone" name="telephone" placeholder="+212 6XX XXX XXX" required/>
+                        <label>Ville</label>
+                        <input type="text" name="city" placeholder="Ex: Casablanca" required="required"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="text" name="phone" placeholder="06XXXXXXXX" required="required"/>
                     </div>
                 </div>
             </div>
 
-            <!-- Adresse de livraison -->
-            <div class="checkout-card">
-                <div class="checkout-section-title">📦 Adresse de livraison</div>
-                <div class="form-group">
-                    <label for="adresse">Adresse complète</label>
-                    <input type="text" id="adresse" name="adresse" placeholder="N° et nom de rue, appartement..." required/>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="ville">Ville</label>
-                        <input type="text" id="ville" name="ville" placeholder="Marrakech" required/>
+            <div class="card-box">
+                <div class="card-title">💵 Mode de paiement</div>
+                <div class="payment-methods-grid">
+                    <div>
+                        <input type="radio" name="paymentMethod" id="card" value="CARD" checked="checked" class="payment-radio" onchange="togglePaymentFields()"/>
+                        <label for="card" class="payment-label">💳 Carte bancaire</label>
                     </div>
-                    <div class="form-group">
-                        <label for="codePostal">Code postal</label>
-                        <input type="text" id="codePostal" name="codePostal" placeholder="40000"/>
+                    <div>
+                        <input type="radio" name="paymentMethod" id="cod" value="COD" class="payment-radio" onchange="togglePaymentFields()"/>
+                        <label for="cod" class="payment-label">💵 Paiement à la livraison</label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="region">Région</label>
-                    <select id="region" name="region">
-                        <option value="">Sélectionnez une région</option>
-                        <option value="casablanca">Casablanca-Settat</option>
-                        <option value="rabat">Rabat-Salé-Kénitra</option>
-                        <option value="marrakech">Marrakech-Safi</option>
-                        <option value="fes">Fès-Meknès</option>
-                        <option value="tanger">Tanger-Tétouan-Al Hoceïma</option>
-                        <option value="souss">Souss-Massa</option>
-                        <option value="oriental">L'Oriental</option>
-                        <option value="autres">Autres régions</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="notelivraison">Instructions de livraison (optionnel)</label>
-                    <textarea id="notelivraison" name="notelivraison" placeholder="Code d'entrée, étage, instructions particulières..."></textarea>
-                </div>
-            </div>
 
-            <!-- Mode de livraison -->
-            <div class="checkout-card">
-                <div class="checkout-section-title">🚚 Mode de livraison</div>
-                <div style="display:flex;flex-direction:column;gap:12px;margin-top:0.5rem;">
-                    <label style="display:flex;align-items:center;gap:16px;padding:16px;border:2px solid var(--gold);border-radius:10px;cursor:pointer;background:rgba(201,168,76,0.04);">
-                        <input type="radio" name="modeLivraison" value="standard" checked style="accent-color:var(--gold);width:18px;height:18px;"/>
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:0.95rem;">Livraison Standard</div>
-                            <div style="font-size:0.82rem;color:var(--mid-gray);">3 à 5 jours ouvrés</div>
-                        </div>
-                        <span style="font-weight:700;color:var(--black);">50 MAD</span>
-                    </label>
-                    <label style="display:flex;align-items:center;gap:16px;padding:16px;border:2px solid var(--light-gray);border-radius:10px;cursor:pointer;">
-                        <input type="radio" name="modeLivraison" value="express" style="accent-color:var(--gold);width:18px;height:18px;"/>
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:0.95rem;">Livraison Express</div>
-                            <div style="font-size:0.82rem;color:var(--mid-gray);">24 à 48 heures</div>
-                        </div>
-                        <span style="font-weight:700;color:var(--black);">90 MAD</span>
-                    </label>
-                    <label style="display:flex;align-items:center;gap:16px;padding:16px;border:2px solid var(--light-gray);border-radius:10px;cursor:pointer;">
-                        <input type="radio" name="modeLivraison" value="gratuite" style="accent-color:var(--gold);width:18px;height:18px;"/>
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:0.95rem;">Livraison Gratuite</div>
-                            <div style="font-size:0.82rem;color:var(--mid-gray);">Pour commandes ≥ 500 MAD — 5 à 7 jours</div>
-                        </div>
-                        <span style="font-weight:700;color:#22c55e;">Gratuit</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Mode de paiement -->
-            <div class="checkout-card">
-                <div class="checkout-section-title">💳 Mode de paiement</div>
-                <div class="payment-methods">
-                    <label class="payment-option active" onclick="selectPayment(this)">
-                        <input type="radio" name="modePaiement" value="carte" checked/>
-                        <div class="pay-icon">💳</div>
-                        <div>Carte bancaire</div>
-                    </label>
-                    <label class="payment-option" onclick="selectPayment(this)">
-                        <input type="radio" name="modePaiement" value="virement"/>
-                        <div class="pay-icon">🏦</div>
-                        <div>Virement bancaire</div>
-                    </label>
-                    <label class="payment-option" onclick="selectPayment(this)">
-                        <input type="radio" name="modePaiement" value="livraison"/>
-                        <div class="pay-icon">📦</div>
-                        <div>Paiement à la livraison</div>
-                    </label>
-                </div>
-
-                <!-- Détails carte (affiché par JS) -->
-                <div id="carteDetails" style="margin-top:1.5rem;">
-                    <div class="form-row">
-                        <div class="form-group" style="grid-column:1/-1;">
+                <div id="credit-card-info">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
                             <label>Numéro de carte</label>
-                            <input type="text" placeholder="1234  5678  9012  3456" maxlength="19" id="cardNumber"/>
+                            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000"/>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label>Date d'expiration</label>
-                            <input type="text" placeholder="MM / AA" maxlength="7"/>
+                            <input type="text" id="cardExpiry" placeholder="MM/AA"/>
                         </div>
                         <div class="form-group">
-                            <label>CVV</label>
-                            <input type="text" placeholder="•••" maxlength="3"/>
+                            <label>Code de sécurité (CVV)</label>
+                            <input type="password" id="cardCvv" placeholder="123"/>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Nom sur la carte</label>
-                        <input type="text" placeholder="NOM PRÉNOM"/>
-                    </div>
                 </div>
             </div>
-
-            <!-- Note de commande -->
-            <div class="checkout-card">
-                <div class="checkout-section-title">📝 Note de commande (optionnel)</div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <textarea name="noteCommande" placeholder="Message spécial, emballage cadeau, demande particulière..."></textarea>
-                </div>
-            </div>
-
-            <button type="submit" class="place-order-btn">🔒 Confirmer la commande</button>
-
-            <p style="text-align:center;font-size:0.8rem;color:var(--mid-gray);margin-top:1rem;">
-                En confirmant, vous acceptez nos <a href="#" style="color:var(--gold-dark);">conditions générales de vente</a>.
-            </p>
-        </form>
-    </div>
-
-    <!-- RÉSUMÉ COMMANDE -->
-    <div class="checkout-summary">
-        <h3>Votre commande</h3>
-
-        <!-- Articles du panier (dynamique) -->
-        <div th:if="${cartItems != null}" th:each="item : ${cartItems}">
-            <div class="checkout-item">
-                <span th:text="${item.product.name} + ' ×' + ${item.cart.quantity}">Article</span>
-                <span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)} + ' MAD'">0 MAD</span>
-            </div>
-        </div>
-        <!-- Fallback si pas de cartItems -->
-        <div th:if="${cartItems == null}">
-            <div class="checkout-item"><span>Articles</span><span>Voir panier</span></div>
         </div>
 
-        <div style="border-top:1px solid var(--light-gray);margin:1rem 0;padding-top:1rem;">
-            <div class="checkout-item">
+        <div class="checkout-summary-side">
+            <h3>Récapitulatif</h3>
+            
+            <div class="summary-row">
                 <span>Sous-total</span>
-                <span th:text="${total != null ? #numbers.formatDecimal(total, 1, 2) + ' MAD' : '—'}">—</span>
+                <span th:text="${#numbers.formatDecimal(subtotal, 1, 2)} + ' MAD'">0.00 MAD</span>
             </div>
-            <div class="checkout-item">
+            
+            <div class="summary-row">
                 <span>Livraison</span>
-                <span th:if="${total != null and total >= 500}" style="color:#22c55e;">Gratuite</span>
-                <span th:if="${total == null or total < 500}">50 MAD</span>
+                <span th:if="${shipping == 0}" style="color:#22c55e; font-weight:600;">Gratuite</span>
+                <span th:if="${shipping > 0}" th:text="${#numbers.formatDecimal(shipping, 1, 2)} + ' MAD'">30.00 MAD</span>
             </div>
-            <div class="checkout-item">
+
+            <div class="summary-row">
                 <span>TVA (20%)</span>
-                <span th:text="${total != null ? #numbers.formatDecimal(total * 0.20, 1, 2) + ' MAD' : '—'}">—</span>
+                <span th:text="${#numbers.formatDecimal(tva, 1, 2)} + ' MAD'">0.00 MAD</span>
+            </div>
+            
+            <div class="summary-total">
+                <span>Total TTC</span>
+                <span th:text="${#numbers.formatDecimal(total, 1, 2)} + ' MAD'">0.00 MAD</span>
+            </div>
+            
+            <div class="promo-container">
+                <input type="text" class="promo-input" placeholder="Code promo"/>
+                <button type="button" class="btn-promo-ok">OK</button>
+            </div>
+            
+            <button type="submit" class="btn-submit-order">Valider ma commande →</button>
+            
+            <div class="security-badges">
+                <span>🔒 SSL sécurisé</span>
+                <span>💳 Paiement sûr</span>
             </div>
         </div>
-
-        <div style="display:flex;justify-content:space-between;font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--black);border-top:2px solid var(--black);padding-top:1rem;margin-top:0.5rem;">
-            <span>Total TTC</span>
-            <span th:text="${total != null ? #numbers.formatDecimal(total + (total < 500 ? 50 : 0) + total * 0.20, 1, 2) + ' MAD' : '—'}">—</span>
-        </div>
-
-        <!-- Badges sécurité -->
-        <div style="margin-top:2rem;padding:1.2rem;background:rgba(0,0,0,0.03);border-radius:10px;text-align:center;">
-            <div style="font-size:1.4rem;margin-bottom:0.5rem;">🔒</div>
-            <p style="font-size:0.8rem;color:var(--mid-gray);line-height:1.5;">Paiement 100% sécurisé. Vos données sont protégées.</p>
-        </div>
-
-        <a th:href="@{/cart}" style="display:block;text-align:center;margin-top:1.2rem;font-size:0.85rem;color:var(--mid-gray);">
-            ← Modifier mon panier
-        </a>
+        
     </div>
-</div>
+</form>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
-function selectPayment(el) {
-    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
-    el.classList.add('active');
-    el.querySelector('input').checked = true;
-    const carteDetails = document.getElementById('carteDetails');
-    if (carteDetails) {
-        carteDetails.style.display = el.querySelector('input').value === 'carte' ? 'block' : 'none';
+    function togglePaymentFields() {
+        var cardRadio = document.getElementById('card');
+        var cardInfoBox = document.getElementById('credit-card-info');
+        var fields = ['cardNumber', 'cardExpiry', 'cardCvv'];
+
+        if (cardRadio && cardRadio.checked) {
+            if(cardInfoBox) cardInfoBox.style.display = 'block';
+            fields.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.setAttribute('required', 'required');
+            });
+        } else {
+            if(cardInfoBox) cardInfoBox.style.display = 'none';
+            fields.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.removeAttribute('required');
+            });
+        }
     }
-}
-// Format card number
-const cardInput = document.getElementById('cardNumber');
-if (cardInput) {
-    cardInput.addEventListener('input', function() {
-        let v = this.value.replace(/\D/g, '').substring(0, 16);
-        this.value = v.replace(/(.{4})/g, '$1  ').trim();
-    });
-}
+    window.onload = togglePaymentFields;
 </script>
 </body>
 </html>

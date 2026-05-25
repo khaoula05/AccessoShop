@@ -24,4 +24,9 @@ public class UserService {
     public User findByEmail(String email) {
         return repo.findByEmail(email);
     }
+
+    public User getUserById(Long id) {
+        // Corrigé avec 'repo' pour effacer la ligne rouge de compilation
+        return repo.findById(id).orElse(null);
+    }
 }
