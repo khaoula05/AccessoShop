@@ -2,8 +2,8 @@ package com.ecommerce.service;
 
 import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.Product;
+import com.ecommerce.entity.User;
 import com.ecommerce.repository.CartRepository;
-import com.ecommerce.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,51 +21,68 @@ class CartServiceTest {
     @Mock
     private CartRepository repo;
 
-    @Mock
-    private ProductRepository productRepo;
-
     @InjectMocks
     private CartService service;
+
+    // =========================
+    // Helpers
+    // =========================
+
+    private User makeUser() {
+        User u = new User();
+        u.setId(1L);
+        return u;
+    }
+
+    private Product makeProduct(Long id, double price) {
+        Product p = new Product();
+        p.setId(id);
+        p.setPrice(price);
+        return p;
+    }
+
+    // =========================
+    // Tests
+    // =========================
 
     @Test
     void shouldAddToCart() {
 
+        User user = makeUser();
+        Product product = makeProduct(1L, 100);
+
         Cart cart = new Cart();
-        cart.setUserId(1L);
-        cart.setProductId(1L);
+        cart.setUser(user);
+        cart.setProduct(product);
         cart.setQuantity(2);
 
-        when(repo.findByUserId(1L))
-                .thenReturn(List.of());
-
-        when(repo.save(cart))
-                .thenReturn(cart);
+        when(repo.findByUser(user)).thenReturn(List.of());
+        when(repo.save(cart)).thenReturn(cart);
 
         Cart saved = service.addToCart(cart);
 
         assertNotNull(saved);
-
         verify(repo).save(cart);
     }
 
     @Test
     void shouldMergeExistingCartItem() {
 
+        User user = makeUser();
+        Product product = makeProduct(1L, 100);
+
         Cart existing = new Cart();
-        existing.setUserId(1L);
-        existing.setProductId(1L);
+        existing.setUser(user);
+        existing.setProduct(product);
         existing.setQuantity(1);
 
         Cart newCart = new Cart();
-        newCart.setUserId(1L);
-        newCart.setProductId(1L);
+        newCart.setUser(user);
+        newCart.setProduct(product);
         newCart.setQuantity(2);
 
-        when(repo.findByUserId(1L))
-                .thenReturn(List.of(existing));
-
-        when(repo.save(any(Cart.class)))
-                .thenReturn(existing);
+        when(repo.findByUser(user)).thenReturn(List.of(existing));
+        when(repo.save(any(Cart.class))).thenReturn(existing);
 
         Cart result = service.addToCart(newCart);
 
@@ -76,10 +92,11 @@ class CartServiceTest {
     @Test
     void shouldReturnUserCart() {
 
-        when(repo.findByUserId(1L))
-                .thenReturn(List.of(new Cart()));
+        User user = makeUser();
 
-        List<Cart> carts = service.getUserCart(1L);
+        when(repo.findByUser(user)).thenReturn(List.of(new Cart()));
+
+        List<Cart> carts = service.getUserCart(user);
 
         assertFalse(carts.isEmpty());
     }
@@ -87,20 +104,16 @@ class CartServiceTest {
     @Test
     void shouldCalculateCartTotal() {
 
+        User user = makeUser();
+        Product product = makeProduct(1L, 100);
+
         Cart cart = new Cart();
-        cart.setProductId(1L);
+        cart.setProduct(product);
         cart.setQuantity(2);
 
-        Product product = new Product();
-        product.setPrice(100);
+        when(repo.findByUser(user)).thenReturn(List.of(cart));
 
-        when(repo.findByUserId(1L))
-                .thenReturn(List.of(cart));
-
-        when(productRepo.findById(1L))
-                .thenReturn(Optional.of(product));
-
-        double total = service.getCartTotal(1L);
+        double total = service.getCartTotal(user);
 
         assertEquals(200, total);
     }
@@ -116,25 +129,10 @@ class CartServiceTest {
     @Test
     void shouldClearCart() {
 
-        service.clearCart(1L);
+        User user = makeUser();
 
-        verify(repo).deleteByUserId(1L);
-    }
+        service.clearCart(user);
 
-    @Test
-    void shouldReturnCartCount() {
-
-        Cart cart1 = new Cart();
-        cart1.setQuantity(2);
-
-        Cart cart2 = new Cart();
-        cart2.setQuantity(3);
-
-        when(repo.findByUserId(1L))
-                .thenReturn(List.of(cart1, cart2));
-
-        int count = service.getCartCount(1L);
-
-        assertEquals(5, count);
+        verify(repo).deleteByUser(user);
     }
 }

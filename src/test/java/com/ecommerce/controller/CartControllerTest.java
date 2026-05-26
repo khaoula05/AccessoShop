@@ -2,8 +2,10 @@ package com.ecommerce.controller;
 
 import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.Product;
+import com.ecommerce.entity.User;
 import com.ecommerce.service.CartService;
 import com.ecommerce.service.ProductService;
+import com.ecommerce.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,40 +34,52 @@ class CartControllerTest {
     @MockBean
     private ProductService productService;
 
+    // Ajout du mock manquant : CartController en a besoin pour résoudre l'utilisateur
+    @MockBean
+    private UserService userService;
+
     @MockBean
     private Authentication authentication;
+
+    // =========================
+    // shouldRedirectToLoginWhenAuthNull
+    // =========================
 
     @Test
     void shouldRedirectToLoginWhenAuthNull() throws Exception {
 
+        // Aucun principal fourni → le contrôleur renvoie redirect:/login
         mockMvc.perform(get("/cart"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
     }
 
+    // =========================
+    // shouldDisplayCart
+    // =========================
+
     @Test
     void shouldDisplayCart() throws Exception {
 
-        when(authentication.getName()).thenReturn("test@test.com");
-
-        Cart cart = new Cart();
-        cart.setId(1L);
-        cart.setProductId(1L);
-        cart.setQuantity(2);
+        User user = new User();
+        user.setId(1L);
 
         Product product = new Product();
         product.setId(1L);
         product.setName("Montre");
         product.setPrice(100);
 
-        when(cartService.getUserCart(anyLong()))
-                .thenReturn(List.of(cart));
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setProduct(product);
+        cart.setQuantity(2);
 
-        when(productService.getProductById(1L))
-                .thenReturn(product);
+        when(authentication.getName()).thenReturn("test@test.com");
+        when(userService.findByEmail("test@test.com")).thenReturn(user);
 
-        when(cartService.getCartTotal(anyLong()))
-                .thenReturn(200.0);
+        // Le contrôleur appelle getUserCart(User) et getCartTotal(User), pas (Long)
+        when(cartService.getUserCart(any(User.class))).thenReturn(List.of(cart));
+        when(cartService.getCartTotal(any(User.class))).thenReturn(200.0);
 
         mockMvc.perform(get("/cart")
                         .principal(authentication))
@@ -75,10 +89,22 @@ class CartControllerTest {
                 .andExpect(view().name("cart/view"));
     }
 
+    // =========================
+    // shouldAddToCart
+    // =========================
+
     @Test
     void shouldAddToCart() throws Exception {
 
+        User user = new User();
+        user.setId(1L);
+
+        Product product = new Product();
+        product.setId(1L);
+
         when(authentication.getName()).thenReturn("test@test.com");
+        when(userService.findByEmail("test@test.com")).thenReturn(user);
+        when(productService.getProductById(1L)).thenReturn(product);
 
         mockMvc.perform(post("/cart/add/1")
                         .param("quantity", "2")
@@ -89,10 +115,18 @@ class CartControllerTest {
         verify(cartService).addToCart(any(Cart.class));
     }
 
+    // =========================
+    // shouldRemoveFromCart
+    // =========================
+
     @Test
     void shouldRemoveFromCart() throws Exception {
 
-        mockMvc.perform(get("/cart/remove/1"))
+        // Le contrôleur vérifie le principal avant de supprimer → on le fournit
+        when(authentication.getName()).thenReturn("test@test.com");
+
+        mockMvc.perform(get("/cart/remove/1")
+                        .principal(authentication))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/cart"));
 
