@@ -1,7 +1,6 @@
 name: Java CI/CD Pipeline - AccessoShop
 run-name: 'Build, Test & Quality Scan - branch: ${{ github.ref_name }}'
 
-
 on:
   push:
     branches:
