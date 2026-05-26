@@ -1,5 +1,5 @@
 name: Java CI/CD Pipeline - AccessoShop
-
+run-name: 'CI/CD & SonarQube Analysis '
 on:
   push:
     branches:
