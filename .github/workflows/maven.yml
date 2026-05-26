@@ -2,7 +2,7 @@ name: Java CI/CD Pipeline - AccessoShop
 
 on:
   push:
-    branches: [ "main", "khaoula-AIT-ATTA-dev" ]
+    branches: [ "main", "khaoula-AIT-ATTA-dev", "Nourelhouda-ELKASRA-dev" ]
   pull_request:
     branches: [ "main" ]
 
