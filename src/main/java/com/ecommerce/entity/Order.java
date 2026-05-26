@@ -2,6 +2,8 @@ package com.ecommerce.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -11,27 +13,30 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ❌ REMPLACE @Column(name = "total") PAR :
+    @Column(name = "total_amount") 
+    private Double totalAmount;
+
     private Long userId;
 
     private LocalDateTime orderDate = LocalDateTime.now();
 
-    private double totalAmount;
-
-    private String status; // ex: EN_COURS, LIVRE, ANNULE
+    private String status;
 
     private String shippingAddress;
 
-    // Constructeurs
-    public Order() {}
+    private String paymentMethod;
 
-    public Order(Long userId, double totalAmount, String status, String shippingAddress) {
-        this.userId = userId;
-        this.totalAmount = totalAmount;
-        this.status = status;
-        this.shippingAddress = shippingAddress;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItem> items = new ArrayList<>();
+
+    public Order() {
     }
 
-    // Getters et Setters
+    // =========================
+    // GETTERS & SETTERS (Modifiés pour utiliser Double au lieu de double)
+    // =========================
+
     public Long getId() {
         return id;
     }
@@ -56,11 +61,13 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public double getTotalAmount() {
+    // 👉 Mis à jour en "Double" (objet) pour correspondre au type de la propriété
+    public Double getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(double totalAmount) {
+    // 👉 Mis à jour en "Double"
+    public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
 
@@ -78,5 +85,21 @@ public class Order {
 
     public void setShippingAddress(String shippingAddress) {
         this.shippingAddress = shippingAddress;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 }

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Gestion des Commandes — BackOffice</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Navbar intégrée directement pour éviter les erreurs de fragments */
+        .custom-navbar {
+            background: #ffffff;
+            padding: 1rem 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .nav-links a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+        }
+        .nav-links a:hover { color: #0284c7; }
+
+        .admin-main {
+            padding: 2rem 7%;
+        }
+        h1 { color: #0f172a; margin-bottom: 1.5rem; }
+        
+        .table-container {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .table-container th,
+        .table-container td {
+            padding: 1rem 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .table-container th {
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+        }
+        .badge {
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+        .status-en-cours { background: #f59e0b; }
+        .status-livre { background: #16a34a; }
+        .status-annule { background: #dc2626; }
+
+        .action-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .action-form select {
+            padding: 0.4rem;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
+        .action-form button {
+            padding: 0.45rem 0.8rem;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .action-form button:hover { background: #1e293b; }
+        .empty-message {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="custom-navbar">
+    <a href="/" class="brand">AccessoShop</a>
+    <div class="nav-links">
+        <a href="/">Accueil</a>
+        <a href="/order/admin/list" style="color: #0284c7; font-weight: bold;">📦 Gestion Commandes</a>
+    </div>
+</nav>
+
+<main class="admin-main">
+    <h1>BackOffice — Suivi des Commandes</h1>
+
+    <table class="table-container">
+        <thead>
+        <tr>
+            <th>N° Commande</th>
+            <th>Client ID</th>
+            <th>Adresse / Livraison</th>
+            <th>Total TTC</th>
+            <th>Statut</th>
+            <th>Modifier</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:if="${#lists.isEmpty(orders)}">
+            <td colspan="6" class="empty-message">
+                Aucune commande disponible pour le moment.
+            </td>
+        </tr>
+
+        <tr th:each="order : ${orders}">
+            <td style="font-weight: 600;" th:text="'#' + ${order.id}">#1</td>
+            
+            <td th:text="${order.userId != null ? 'Client n°' + order.userId : 'Anonyme'}">ID</td>
+            
+            <td th:text="${order.shippingAddress}">Adresse</td>
+            
+            <td style="font-weight: 600;" th:text="${order.totalAmount != null ? order.totalAmount + ' MAD' : '0.00 MAD'}">0.00 MAD</td>
+
+            <td>
+                <span th:if="${order.status == 'EN_COURS' || order.status == 'EN PRÉPARATION'}" class="badge status-en-cours">EN COURS</span>
+                <span th:if="${order.status == 'LIVRE'}" class="badge status-livre">LIVRÉ</span>
+                <span th:if="${order.status == 'ANNULE'}" class="badge status-annule">ANNULÉ</span>
+            </td>
+
+            <td>
+                <form th:action="@{/order/admin/update-status/{id}(id=${order.id})}" method="post" class="action-form">
+                    <select name="status">
+                        <option value="EN_COURS" th:selected="${order.status == 'EN_COURS' || order.status == 'EN PRÉPARATION'}">En cours</option>
+                        <option value="LIVRE" th:selected="${order.status == 'LIVRE'}">Livré</option>
+                        <option value="ANNULE" th:selected="${order.status == 'ANNULE'}">Annulé</option>
+                    </select>
+                    <button type="submit">Modifier</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+</body>
+</html>

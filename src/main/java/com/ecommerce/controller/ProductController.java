@@ -8,18 +8,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/products")
 public class ProductController {
 
     private final ProductService service;
-    
-    // 1. Ordre exact demandé : Boucle, Montre, Collier, Bague, Bracelet
     private final List<String> categories = List.of("boucle", "montre", "collier", "bague", "bracelet");
 
     public ProductController(ProductService service) {
@@ -39,21 +43,16 @@ public class ProductController {
             model.addAttribute("currentCategory", "recherche");
             model.addAttribute("view", "products");
         }
-
-        // 2. LOGIQUE DE LA GALERIE (Page d'accueil de la boutique)
         else if (category == null || category.equalsIgnoreCase("boutique")) {
-            // Liste mise à jour avec vos images gold1, gold2, gold3
             List<String> localImages = Arrays.asList(
-                 "montre1.jpg", "collier1.jpg", 
-                "bague1.jpg", "bracelet1.jpg", 
-                "gold1.jpg", "gold3.jpg"
+                "montre1.png", "collier1.png", 
+                "bague1.png", "bracelet1.png", 
+                "gold1.png", "gold3.png"
             );
             model.addAttribute("localImages", localImages);
             model.addAttribute("currentCategory", "boutique");
-            model.addAttribute("view", "gallery"); // Pour activer l'affichage galerie dans list.html
+            model.addAttribute("view", "gallery"); 
         } 
-        
-        // 3. LOGIQUE DES CATÉGORIES SPÉCIFIQUES
         else {
             products = service.getProductsByCategory(category.toLowerCase());
             model.addAttribute("currentCategory", category.toLowerCase());
@@ -62,7 +61,8 @@ public class ProductController {
         
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
-        return "products/list";
+        
+        return "products/list"; 
     }
 
     @GetMapping("/{id}")
@@ -75,8 +75,6 @@ public class ProductController {
         return "products/detail";
     }
 
-    // --- SECTION ADMIN ---
-
     @GetMapping("/admin/new")
     @PreAuthorize("hasRole('ADMIN')")
     public String newForm(Model model) {
@@ -87,7 +85,11 @@ public class ProductController {
 
     @PostMapping("/admin/save")
     @PreAuthorize("hasRole('ADMIN')")
-    public String save(@Valid @ModelAttribute Product product, BindingResult result, Model model) {
+    public String save(@Valid @ModelAttribute Product product, 
+                       BindingResult result, 
+                       @RequestParam("imageFile") MultipartFile imageFile, 
+                       Model model) {
+        
         if(product.getCategory() != null) {
             product.setCategory(product.getCategory().toLowerCase());
         }
@@ -97,8 +99,33 @@ public class ProductController {
             return "admin/product-form";
         }
 
-        if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
-            product.setImageUrl(defaultImageFor(product.getCategory()));
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String uploadDirectory = "C:" + File.separator + "accessoshop-uploads" + File.separator;
+
+                File folder = new File(uploadDirectory);
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                }
+
+                String originalFilename = imageFile.getOriginalFilename();
+                String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+
+                Path path = Paths.get(uploadDirectory + uniqueFilename);
+                Files.write(path, imageFile.getBytes());
+
+                // MODIFICATION ICI : On utilise le préfixe /uploads/ cohérent avec WebConfig
+                product.setImageUrl("/uploads/" + uniqueFilename);
+                
+            } else if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
+                product.setImageUrl(defaultImageFor(product.getCategory()));
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Erreur lors du traitement de l'image.");
+            model.addAttribute("categories", categories);
+            return "admin/product-form";
         }
 
         service.saveProduct(product);
@@ -113,12 +140,13 @@ public class ProductController {
     }
 
     private String defaultImageFor(String category) {
+        // MODIFICATION ICI : Les fallbacks pointent aussi vers le dossier virtuel /uploads/
         return switch (category) {
-            case "montre" -> "/images/montre1.jpg";
-            case "collier" -> "/images/collier1.jpg";
-            case "bague" -> "/images/bague1.jpg";
-            case "bracelet" -> "/images/bracelet1.jpg";
-            default -> "/images/gold1.jpg";
+            case "montre" -> "/uploads/montre1.png";
+            case "collier" -> "/uploads/collier1.png";
+            case "bague" -> "/uploads/bague1.png";
+            case "bracelet" -> "/uploads/bracelet1.png";
+            default -> "/uploads/gold1.png"; 
         };
     }
 }

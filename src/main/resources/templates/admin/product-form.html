@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Administration - Produit</title>
     <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <style>
+        .drag-drop-zone {
+            border: 2px dashed #cca43b;
+            padding: 30px 20px;
+            text-align: center;
+            background: #fdfbf7;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .drag-drop-zone:hover, .drag-drop-zone.dragover {
+            background: #f5efe0;
+            border-color: #a3822e;
+        }
+        .drag-drop-zone p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .preview-container {
+            margin-top: 15px;
+            display: none;
+        }
+        .preview-image {
+            max-width: 120px;
+            max-height: 120px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -16,8 +46,9 @@
 </header>
 
 <main class="admin-page">
-    <form th:action="@{/products/admin/save}" th:object="${product}" method="post" class="admin-form">
+    <form th:action="@{/products/admin/save}" th:object="${product}" method="post" enctype="multipart/form-data" class="admin-form">
         <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" th:field="*{imageUrl}"/>
 
         <div class="form-group">
             <label for="name">Nom du produit</label>
@@ -56,8 +87,15 @@
         </div>
 
         <div class="form-group">
-            <label for="imageUrl">Image URL</label>
-            <input id="imageUrl" type="text" th:field="*{imageUrl}" placeholder="https://... ou /images/bracelet1.jpg"/>
+            <label>Image du produit</label>
+            <div id="drop-zone" class="drag-drop-zone">
+                <p>Glissez-déposez une image ici ou cliquez pour parcourir vos fichiers</p>
+                <input type="file" id="file-input" name="imageFile" accept="image/*" style="display: none;" />
+                
+                <div id="preview-container" class="preview-container">
+                    <img id="preview-img" class="preview-image" src="" alt="Aperçu du produit" />
+                </div>
+            </div>
         </div>
 
         <div class="form-group">
@@ -78,5 +116,56 @@
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-img');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length > 0) {
+            const files = e.dataTransfer.files;
+            
+            // Correction de sécurité pour forcer l'ajout dans l'élément input file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(files[0]);
+            fileInput.files = dataTransfer.files;
+            
+            handleFile(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
 </body>
 </html>

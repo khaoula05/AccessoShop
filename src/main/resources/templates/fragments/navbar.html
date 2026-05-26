@@ -1,25 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+</head>
 <body>
 <div th:fragment="navbar">
     <nav class="navbar">
         <a th:href="@{/}" class="navbar-brand">Accesso<span>Shop</span></a>
 
-        <ul>
-            <li><a th:href="@{/products(category=boucle)}">Boucles</a></li>
-            <li><a th:href="@{/products(category=montre)}">Montres</a></li>
-            <li><a th:href="@{/products(category=collier)}">Colliers</a></li>
-            <li><a th:href="@{/products(category=bague)}">Bagues</a></li>
-            <li><a th:href="@{/products(category=bracelet)}">Bracelets</a></li>
-            <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/products/admin/new}">Admin</a></li>
+        <ul> 
+            <li>
+                <a th:href="@{/}">Accueil</a>
+            </li> 
+            
+            <li>
+                <a th:href="@{/products(category=boucle)}" 
+                   th:classappend="${currentCategory == 'boucle' || currentCategory == 'BOUCLES'} ? 'active'">Boucles</a>
+            </li>
+            <li>
+                <a th:href="@{/products(category=montre)}" 
+                   th:classappend="${currentCategory == 'montre' || currentCategory == 'MONTRES'} ? 'active'">Montres</a>
+            </li>
+            <li>
+                <a th:href="@{/products(category=collier)}" 
+                   th:classappend="${currentCategory == 'collier' || currentCategory == 'COLLIERS'} ? 'active'">Colliers</a>
+            </li>
+            <li>
+                <a th:href="@{/products(category=bague)}" 
+                   th:classappend="${currentCategory == 'bague' || currentCategory == 'BAGUES'} ? 'active'">Bagues</a>
+            </li>
+            <li>
+                <a th:href="@{/products(category=bracelet)}" 
+                   th:classappend="${currentCategory == 'bracelet' || currentCategory == 'BRACELETS'} ? 'active'">Bracelets</a>
+            </li>
+            
+            <li sec:authorize="isAuthenticated() && !hasRole('ADMIN')">
+                <a th:href="@{/order/my-purchases}">Mes Achats</a>
+            </li>
+            
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/products/admin/new}">Admin</a>
+            </li>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/order/admin/list}" style="color: #b45309; font-weight: 600;">📦 Gestion Commandes</a>
+            </li>
         </ul>
-
+        
         <div class="nav-actions">
             <div sec:authorize="isAnonymous()" style="display:flex;gap:10px;">
                 <a th:href="@{/login}" class="btn-outline">Connexion</a>
                 <a th:href="@{/register}" class="btn-outline">Inscription</a>
             </div>
+            
             <div sec:authorize="isAuthenticated()" style="display:flex;align-items:center;gap:15px;">
                 <span style="font-size:0.85rem;color:var(--mid-gray);">
                     Bonjour, <span sec:authentication="name" style="color:var(--gold);font-weight:600;">Utilisateur</span>
@@ -28,6 +61,7 @@
                     <button type="submit" class="btn-link">Déconnexion</button>
                 </form>
             </div>
+            
             <a th:href="@{/cart}" class="cart-btn">🛒 Panier</a>
         </div>
     </nav>

@@ -2,14 +2,15 @@ package com.ecommerce.controller;
 
 import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.Product;
+import com.ecommerce.entity.User;
 import com.ecommerce.service.CartService;
 import com.ecommerce.service.ProductService;
-import org.springframework.security.core.Authentication;
+import com.ecommerce.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -18,64 +19,60 @@ public class CartController {
 
     private final CartService cartService;
     private final ProductService productService;
+    private final UserService userService;
 
-    public CartController(CartService cartService, ProductService productService) {
+    public CartController(CartService cartService, ProductService productService, UserService userService) {
         this.cartService = cartService;
         this.productService = productService;
+        this.userService = userService;
     }
 
     @GetMapping
-    public String viewCart(Authentication auth, Model model) {
-        if (auth == null) return "redirect:/login";
-        
-        Long userId = getUserId(auth);
-        List<Cart> cartItems = cartService.getUserCart(userId);
-        
-        List<CartItemView> views = new ArrayList<>();
-        for (Cart c : cartItems) {
-            Product p = productService.getProductById(c.getProductId());
-            if (p != null) views.add(new CartItemView(c, p));
+    public String viewCart(Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
         }
-        
-        model.addAttribute("cartItems", views);
-        model.addAttribute("total", cartService.getCartTotal(userId));
+        User user = userService.findByEmail(principal.getName());
+        List<Cart> cartItems = cartService.getUserCart(user);
+
+        double subtotal = cartService.getCartTotal(user);
+        double shipping = (subtotal >= 500 || subtotal == 0) ? 0 : 30;
+        double tva = subtotal * 0.20;
+        double total = subtotal + shipping + tva;
+
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("subtotal", subtotal);
+        model.addAttribute("shipping", shipping);
+        model.addAttribute("tva", tva);
+        model.addAttribute("total", total);
+
         return "cart/view";
     }
 
-    @PostMapping("/add/{productId}")
-    public String addToCart(@PathVariable Long productId, 
-                            @RequestParam(defaultValue = "1") int quantity,
-                            Authentication auth) {
-        if (auth == null) return "redirect:/login";
-        
-        Cart cart = new Cart();
-        cart.setUserId(getUserId(auth));
-        cart.setProductId(productId);
-        cart.setQuantity(quantity);
-        cartService.addToCart(cart);
-        return "redirect:/cart";
-    }
-
-    @GetMapping("/remove/{cartId}")
-    public String removeFromCart(@PathVariable Long cartId) {
-        cartService.removeFromCart(cartId);
-        return "redirect:/cart";
-    }
-
-    private Long getUserId(Authentication auth) {
-        // On utilise le hashCode de l'email comme ID unique temporaire
-        return (long) Math.abs(auth.getName().hashCode());
-    }
-
-    public static class CartItemView {
-        public Cart cart;
-        public Product product;
-        public double subtotal;
-
-        public CartItemView(Cart cart, Product product) {
-            this.cart = cart;
-            this.product = product;
-            this.subtotal = product.getPrice() * cart.getQuantity();
+    @PostMapping("/add/{id}")
+    public String addToCart(@PathVariable Long id, @RequestParam(defaultValue = "1") int quantity, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
         }
+        User user = userService.findByEmail(principal.getName());
+        Product product = productService.getProductById(id);
+
+        if (product != null) {
+            Cart cart = new Cart();
+            cart.setUser(user);
+            cart.setProduct(product);
+            cart.setQuantity(quantity);
+            cartService.addToCart(cart);
+        }
+        return "redirect:/cart";
+    }
+
+    @GetMapping("/remove/{id}")
+    public String removeFromCart(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        cartService.removeFromCart(id);
+        return "redirect:/cart";
     }
 }

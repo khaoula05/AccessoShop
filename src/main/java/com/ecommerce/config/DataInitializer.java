@@ -23,7 +23,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 1. Initialisation des Utilisateurs (Admin et Test)
         if (userRepo.count() == 0) {
             User admin = new User();
             admin.setEmail("admin@accesso.com");
@@ -40,14 +39,13 @@ public class DataInitializer implements CommandLineRunner {
             userRepo.save(user);
         }
 
-        // 2. Initialisation des Produits avec vos NOUVELLES catégories
         if (productRepo.count() == 0) {
-            // Exemples de produits pour remplir les listes
-            productRepo.save(createProduct("Montre Élégante Or", 299.99, "Montre classique dorée", "montre", "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400"));
-            productRepo.save(createProduct("Collier Perles Luxe", 89.99, "Collier délicat avec perles", "collier", "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400"));
-            productRepo.save(createProduct("Bague Diamant", 499.99, "Bague en argent et diamant", "bague", "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400"));
-            productRepo.save(createProduct("Bracelet Argent", 59.99, "Bracelet ajustable 925", "bracelet", "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=400"));
-            productRepo.save(createProduct("Boucles d'oreilles", 45.00, "Boucles style créoles", "boucle", "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400"));
+            // MODIFICATION ICI : Utilisation de vos fichiers locaux réels via le chemin virtuel /uploads/
+            productRepo.save(createProduct("Montre Élégante Or", 299.99, "Montre classique dorée", "montre", "/uploads/montre1.png"));
+            productRepo.save(createProduct("Collier Perles Luxe", 89.99, "Collier délicat avec perles", "collier", "/uploads/collier1.png"));
+            productRepo.save(createProduct("Bague Diamant", 499.99, "Bague en argent et diamant", "bague", "/uploads/bague1.png"));
+            productRepo.save(createProduct("Bracelet Argent", 59.99, "Bracelet ajustable 925", "bracelet", "/uploads/bracelet1.png"));
+            productRepo.save(createProduct("Boucles d'oreilles", 45.00, "Boucles style créoles", "boucle", "/uploads/gold1.png"));
         }
     }
 
@@ -56,7 +54,7 @@ public class DataInitializer implements CommandLineRunner {
         p.setName(name);
         p.setPrice(price);
         p.setDescription(desc);
-        p.setCategory(category.toLowerCase()); // On force en minuscule pour éviter les erreurs
+        p.setCategory(category.toLowerCase());
         p.setImageUrl(imageUrl);
         p.setStock(10);
         p.setRating(4.5);

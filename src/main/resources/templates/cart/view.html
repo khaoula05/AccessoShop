@@ -14,7 +14,6 @@
     <h1>Votre sélection</h1>
 </div>
 
-<!-- Panier vide -->
 <div class="empty-cart" th:if="${#lists.isEmpty(cartItems)}">
     <div style="font-size:5rem;margin-bottom:1rem;">🛒</div>
     <h2>Votre panier est vide</h2>
@@ -22,37 +21,37 @@
     <a th:href="@{/products}" class="btn-primary" style="display:inline-flex;margin-top:1.5rem;">Continuer mes achats →</a>
 </div>
 
-<!-- Panier avec articles -->
 <div class="cart-layout" th:if="${!#lists.isEmpty(cartItems)}">
-    <!-- Liste des articles -->
     <div>
         <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:1.5rem;">
             Articles (<span th:text="${#lists.size(cartItems)}">0</span>)
         </h2>
+        
         <div th:each="item : ${cartItems}" class="cart-item">
             <div class="cart-item-img">
-                <img th:src="${item.product.imageUrl}" th:alt="${item.product.name}"
-                     onerror="this.style.display='none'"/>
+                <img th:src="${item.product.imageUrl != null && item.product.imageUrl.startsWith('/uploads/') ? item.product.imageUrl : '/uploads/' + item.product.imageUrl}" 
+                     th:alt="${item.product.name}"
+                     onerror="this.onerror=null; if(this.src.endsWith('.jpg')) { this.src=this.src.replace('.jpg', '.png'); } else { this.src=this.src + '.jpg'; }"/>
             </div>
             <div>
                 <div class="cart-item-name" th:text="${item.product.name}">Produit</div>
                 <div class="cart-item-price" th:text="${item.product.category}">Catégorie</div>
                 <div style="margin-top:0.4rem;color:var(--mid-gray);font-size:0.88rem;">
-                    Qté : <strong th:text="${item.cart.quantity}">1</strong>
+                    Qté : <strong th:text="${item.quantity != null ? item.quantity : 1}">1</strong>
                     × <span th:text="${#numbers.formatDecimal(item.product.price, 1, 2)}">0</span> MAD
                 </div>
             </div>
             <div style="text-align:right;">
-                <div class="cart-item-sub" th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)} + ' MAD'">0 MAD</div>
-                <a th:href="@{/cart/remove/{id}(id=${item.cart.id})}" class="remove-btn" style="display:inline-block;margin-top:0.5rem;" title="Supprimer">🗑️</a>
+                <div class="cart-item-sub" th:text="${#numbers.formatDecimal(item.product.price * (item.quantity != null ? item.quantity : 1), 1, 2)} + ' MAD'">0 MAD</div>
+                <a th:href="@{/cart/remove/{id}(id=${item.product.id})}" class="remove-btn" style="display:inline-block;margin-top:0.5rem;" title="Supprimer">Supprimer</a>
             </div>
         </div>
+        
         <div style="margin-top:2rem;">
             <a th:href="@{/products}" style="color:var(--mid-gray);font-size:0.9rem;">← Continuer mes achats</a>
         </div>
     </div>
 
-    <!-- Récapitulatif -->
     <div class="order-summary">
         <h3>Récapitulatif</h3>
         <div class="summary-row">
@@ -62,7 +61,7 @@
         <div class="summary-row">
             <span>Livraison</span>
             <span th:if="${total >= 500}" style="color:#22c55e;">Gratuite</span>
-            <span th:if="${total < 500}">50 MAD</span>
+            <span th:if="${total < 500}">30,00 MAD</span>
         </div>
         <div class="summary-row">
             <span>TVA (20%)</span>
@@ -70,10 +69,9 @@
         </div>
         <div class="summary-row total">
             <span>Total TTC</span>
-            <span th:text="${#numbers.formatDecimal(total + (total < 500 ? 50 : 0) + total * 0.20, 1, 2)} + ' MAD'">0 MAD</span>
+            <span th:text="${#numbers.formatDecimal(total + (total < 500 ? 30 : 0), 1, 2)} + ' MAD'">0 MAD</span>
         </div>
 
-        <!-- Code promo -->
         <div style="margin:1.2rem 0;display:flex;gap:0.5rem;">
             <input type="text" placeholder="Code promo" style="flex:1;padding:10px 14px;border:1.5px solid var(--light-gray);border-radius:50px;font-size:0.88rem;outline:none;font-family:var(--font-body);"/>
             <button style="padding:10px 16px;background:var(--black);color:var(--white);border:none;border-radius:50px;cursor:pointer;font-size:0.85rem;font-family:var(--font-body);transition:all 0.3s;">OK</button>

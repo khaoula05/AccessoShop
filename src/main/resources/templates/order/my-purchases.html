@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mes Achats — AccessoShop</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <style>
+        .purchases-container { max-width: 1000px; margin: 3rem auto; padding: 0 2rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .order-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.2rem; margin-bottom: 1.5rem; }
+        .order-meta { display: flex; gap: 2.5rem; }
+        .meta-block span { display: block; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 0.25rem; }
+        .meta-block p { margin: 0; font-size: 0.95rem; font-weight: 600; color: #1e293b; }
+        .status-badge { padding: 0.5rem 1rem; border-radius: 30px; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-EN_COURS { background: #fef3c7; color: #d97706; }
+        .status-LIVRE { background: #dcfce7; color: #15803d; }
+        .status-ANNULE { background: #fee2e2; color: #dc2626; }
+        .product-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px dashed #e2e8f0; }
+        .product-item:last-of-type { border-bottom: none; }
+        .product-details h4 { margin: 0 0 0.25rem 0; font-size: 1rem; color: #1e293b; }
+        .product-details p { margin: 0; font-size: 0.85rem; color: #64748b; }
+        .product-price { font-weight: 600; color: #1e293b; }
+        .order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid #f1f5f9; background: #fafafa; padding: 1rem; border-radius: 8px; }
+        .delivery-info { font-size: 0.85rem; color: #475569; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="page-header">
+    <p style="color:var(--gold); font-size:0.82rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:0.5rem;">Espace Client</p>
+    <h1>Suivi de mes achats</h1>
+</div>
+
+<main class="purchases-container">
+    <div th:if="${#lists.isEmpty(orders)}" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📦</div>
+        <h3 style="color:#475569;">Vous n'avez pas encore passé de commande.</h3>
+        <a th:href="@{/products}" class="btn-primary" style="margin-top: 1.5rem; display: inline-block;">Visiter la galerie</a>
+    </div>
+
+    <div th:each="order : ${orders}" class="order-card">
+        <div class="order-header">
+            <div class="order-meta">
+                <div class="meta-block">
+                    <span>N° de Commande</span>
+                    <p th:text="'#' + ${order.id}">#1001</p>
+                </div>
+                <div class="meta-block">
+                    <span>Mode de paiement</span>
+                    <p th:text="${order.paymentMethod == 'CARD' ? '💳 Carte Bancaire' : '💵 À la livraison'}">Paiement</p>
+                </div>
+                <div class="meta-block">
+                    <span>Montant Total</span>
+                    <p style="color: #000; font-weight: 700;" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' MAD'">0.00 MAD</p>
+                </div>
+            </div>
+            <div>
+                <span th:class="'status-badge status-' + ${order.status}" th:text="${order.status == 'EN_COURS' ? 'En préparation' : (order.status == 'LIVRE' ? 'Livrée' : 'Annulée')}">Statut</span>
+            </div>
+        </div>
+        
+        <div class="order-products">
+            <div th:each="item : ${order.items}" class="product-item">
+                <div class="product-details">
+                    <h4 th:text="${item.productName}">Nom de l'accessoire</h4>
+                    <p th:text="'Quantité : ' + ${item.quantity}">Quantité : 1</p>
+                </div>
+                <div class="product-price">
+                    <span th:text="${#numbers.formatDecimal(item.price, 1, 2)} + ' MAD'">0.00 MAD</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-footer">
+            <div class="delivery-info">
+                📍 <strong>Destinataire &amp; Adresse :</strong> <span th:text="${order.shippingAddress}">Adresse</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
