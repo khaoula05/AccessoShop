@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: Accessoshop
-    runtime: java
-    buildCommand: mvn -B clean package -DskipTests
-    startCommand: java -jar target/*.jar
-    envVars:
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod
