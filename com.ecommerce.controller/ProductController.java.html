@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AccessoShop</a> &gt; <a href="index.source.html" class="el_package">com.ecommerce.controller</a> &gt; <span class="el_source">ProductController.java</span></div><h1>ProductController.java</h1><pre class="source lang-java linenums">package com.ecommerce.controller;
+
+import com.ecommerce.entity.Product;
+import com.ecommerce.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+@Controller
+@RequestMapping(&quot;/products&quot;)
+public class ProductController {
+
+    private final ProductService service;
+<span class="fc" id="L27">    private final List&lt;String&gt; categories = List.of(&quot;boucle&quot;, &quot;montre&quot;, &quot;collier&quot;, &quot;bague&quot;, &quot;bracelet&quot;);</span>
+
+<span class="fc" id="L29">    public ProductController(ProductService service) {</span>
+<span class="fc" id="L30">        this.service = service;</span>
+<span class="fc" id="L31">    }</span>
+
+    @GetMapping
+    public String list(@RequestParam(required = false) String category,
+                       @RequestParam(required = false) String search,
+                       Model model) {
+        
+<span class="fc" id="L38">        List&lt;Product&gt; products = new ArrayList&lt;&gt;();</span>
+
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">        if (search != null &amp;&amp; !search.isBlank()) {</span>
+<span class="fc" id="L41">            products = service.searchProducts(search);</span>
+<span class="fc" id="L42">            model.addAttribute(&quot;search&quot;, search);</span>
+<span class="fc" id="L43">            model.addAttribute(&quot;currentCategory&quot;, &quot;recherche&quot;);</span>
+<span class="fc" id="L44">            model.addAttribute(&quot;view&quot;, &quot;products&quot;);</span>
+        }
+<span class="pc bpc" id="L46" title="3 of 4 branches missed.">        else if (category == null || category.equalsIgnoreCase(&quot;boutique&quot;)) {</span>
+<span class="fc" id="L47">            List&lt;String&gt; localImages = Arrays.asList(</span>
+                &quot;montre1.png&quot;, &quot;collier1.png&quot;, 
+                &quot;bague1.png&quot;, &quot;bracelet1.png&quot;, 
+                &quot;gold1.png&quot;, &quot;gold3.png&quot;
+            );
+<span class="fc" id="L52">            model.addAttribute(&quot;localImages&quot;, localImages);</span>
+<span class="fc" id="L53">            model.addAttribute(&quot;currentCategory&quot;, &quot;boutique&quot;);</span>
+<span class="fc" id="L54">            model.addAttribute(&quot;view&quot;, &quot;gallery&quot;); </span>
+<span class="fc" id="L55">        } </span>
+        else {
+<span class="nc" id="L57">            products = service.getProductsByCategory(category.toLowerCase());</span>
+<span class="nc" id="L58">            model.addAttribute(&quot;currentCategory&quot;, category.toLowerCase());</span>
+<span class="nc" id="L59">            model.addAttribute(&quot;view&quot;, &quot;products&quot;);</span>
+        }
+        
+<span class="fc" id="L62">        model.addAttribute(&quot;products&quot;, products);</span>
+<span class="fc" id="L63">        model.addAttribute(&quot;categories&quot;, categories);</span>
+        
+<span class="fc" id="L65">        return &quot;products/list&quot;; </span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public String detail(@PathVariable Long id, Model model) {
+<span class="fc" id="L70">        Product product = service.getProductById(id);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (product == null) return &quot;redirect:/products&quot;;</span>
+        
+<span class="fc" id="L73">        model.addAttribute(&quot;product&quot;, product);</span>
+<span class="fc" id="L74">        model.addAttribute(&quot;related&quot;, service.getProductsByCategory(product.getCategory()));</span>
+<span class="fc" id="L75">        return &quot;products/detail&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/new&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public String newForm(Model model) {
+<span class="nc" id="L81">        model.addAttribute(&quot;product&quot;, new Product());</span>
+<span class="nc" id="L82">        model.addAttribute(&quot;categories&quot;, categories);</span>
+<span class="nc" id="L83">        return &quot;admin/product-form&quot;;</span>
+    }
+
+    @PostMapping(&quot;/admin/save&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public String save(@Valid @ModelAttribute Product product, 
+                       BindingResult result, 
+                       @RequestParam(&quot;imageFile&quot;) MultipartFile imageFile, 
+                       Model model) {
+        
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if(product.getCategory() != null) {</span>
+<span class="nc" id="L94">            product.setCategory(product.getCategory().toLowerCase());</span>
+        }
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (result.hasErrors()) {</span>
+<span class="nc" id="L98">            model.addAttribute(&quot;categories&quot;, categories);</span>
+<span class="nc" id="L99">            return &quot;admin/product-form&quot;;</span>
+        }
+
+        try {
+<span class="nc bnc" id="L103" title="All 4 branches missed.">            if (imageFile != null &amp;&amp; !imageFile.isEmpty()) {</span>
+<span class="nc" id="L104">                String uploadDirectory = &quot;C:&quot; + File.separator + &quot;accessoshop-uploads&quot; + File.separator;</span>
+
+<span class="nc" id="L106">                File folder = new File(uploadDirectory);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (!folder.exists()) {</span>
+<span class="nc" id="L108">                    folder.mkdirs();</span>
+                }
+
+<span class="nc" id="L111">                String originalFilename = imageFile.getOriginalFilename();</span>
+<span class="nc" id="L112">                String uniqueFilename = UUID.randomUUID().toString() + &quot;_&quot; + originalFilename;</span>
+
+<span class="nc" id="L114">                Path path = Paths.get(uploadDirectory + uniqueFilename);</span>
+<span class="nc" id="L115">                Files.write(path, imageFile.getBytes());</span>
+
+                // MODIFICATION ICI : On utilise le préfixe /uploads/ cohérent avec WebConfig
+<span class="nc" id="L118">                product.setImageUrl(&quot;/uploads/&quot; + uniqueFilename);</span>
+                
+<span class="nc bnc" id="L120" title="All 4 branches missed.">            } else if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {</span>
+<span class="nc" id="L121">                product.setImageUrl(defaultImageFor(product.getCategory()));</span>
+            }
+            
+<span class="nc" id="L124">        } catch (Exception e) {</span>
+<span class="nc" id="L125">            e.printStackTrace();</span>
+<span class="nc" id="L126">            model.addAttribute(&quot;error&quot;, &quot;Erreur lors du traitement de l'image.&quot;);</span>
+<span class="nc" id="L127">            model.addAttribute(&quot;categories&quot;, categories);</span>
+<span class="nc" id="L128">            return &quot;admin/product-form&quot;;</span>
+<span class="nc" id="L129">        }</span>
+
+<span class="nc" id="L131">        service.saveProduct(product);</span>
+<span class="nc" id="L132">        return &quot;redirect:/products?category=&quot; + product.getCategory();</span>
+    }
+
+    @GetMapping(&quot;/admin/delete/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public String delete(@PathVariable Long id) {
+<span class="fc" id="L138">        service.deleteProduct(id);</span>
+<span class="fc" id="L139">        return &quot;redirect:/products&quot;;</span>
+    }
+
+    private String defaultImageFor(String category) {
+        // MODIFICATION ICI : Les fallbacks pointent aussi vers le dossier virtuel /uploads/
+<span class="nc bnc" id="L144" title="All 5 branches missed.">        return switch (category) {</span>
+<span class="nc" id="L145">            case &quot;montre&quot; -&gt; &quot;/uploads/montre1.png&quot;;</span>
+<span class="nc" id="L146">            case &quot;collier&quot; -&gt; &quot;/uploads/collier1.png&quot;;</span>
+<span class="nc" id="L147">            case &quot;bague&quot; -&gt; &quot;/uploads/bague1.png&quot;;</span>
+<span class="nc" id="L148">            case &quot;bracelet&quot; -&gt; &quot;/uploads/bracelet1.png&quot;;</span>
+<span class="nc" id="L149">            default -&gt; &quot;/uploads/gold1.png&quot;; </span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

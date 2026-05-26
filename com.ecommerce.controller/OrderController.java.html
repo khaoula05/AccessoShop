@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AccessoShop</a> &gt; <a href="index.source.html" class="el_package">com.ecommerce.controller</a> &gt; <span class="el_source">OrderController.java</span></div><h1>OrderController.java</h1><pre class="source lang-java linenums">package com.ecommerce.controller;
+
+import com.ecommerce.entity.Cart;
+import com.ecommerce.entity.Order;
+import com.ecommerce.entity.OrderItem;
+import com.ecommerce.entity.Product;
+import com.ecommerce.entity.User;
+import com.ecommerce.repository.CartRepository;
+import com.ecommerce.repository.OrderRepository;
+import com.ecommerce.service.OrderService;
+import com.ecommerce.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
+@RequestMapping(&quot;/order&quot;)
+<span class="fc" id="L23">public class OrderController {</span>
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    // ==========================================
+    // ANCIENNES MÉTHODES (CONSERVÉES À L'IDENTIQUE)
+    // ==========================================
+
+    @GetMapping(&quot;/checkout&quot;)
+    public String showCheckoutPage(Model model, Principal principal) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (principal == null) {</span>
+<span class="fc" id="L44">            return &quot;redirect:/login&quot;;</span>
+        }
+
+<span class="fc" id="L47">        User user = userService.findByEmail(principal.getName());</span>
+<span class="fc" id="L48">        List&lt;Cart&gt; cartItems = cartRepository.findByUser(user);</span>
+
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (cartItems.isEmpty()) {</span>
+<span class="nc" id="L51">            return &quot;redirect:/cart&quot;;</span>
+        }
+
+<span class="fc" id="L54">        double subtotal = 0;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (Cart cart : cartItems) {</span>
+<span class="fc" id="L56">            subtotal += cart.getProduct().getPrice() * cart.getQuantity();</span>
+<span class="fc" id="L57">        }</span>
+
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        double shipping = (subtotal &gt;= 500) ? 0 : 30;</span>
+<span class="fc" id="L60">        double tva = subtotal * 0.20;</span>
+<span class="fc" id="L61">        double total = subtotal + shipping + tva;</span>
+
+<span class="fc" id="L63">        model.addAttribute(&quot;subtotal&quot;, subtotal);</span>
+<span class="fc" id="L64">        model.addAttribute(&quot;shipping&quot;, shipping);</span>
+<span class="fc" id="L65">        model.addAttribute(&quot;tva&quot;, tva);</span>
+<span class="fc" id="L66">        model.addAttribute(&quot;total&quot;, total);</span>
+        
+<span class="fc" id="L68">        Order order = new Order();</span>
+<span class="fc" id="L69">        order.setTotalAmount(total);</span>
+<span class="fc" id="L70">        model.addAttribute(&quot;order&quot;, order);</span>
+
+<span class="fc" id="L72">        return &quot;order/checkout&quot;;</span>
+    }
+
+    @PostMapping(&quot;/checkout&quot;)
+    public String processCheckout(@ModelAttribute(&quot;order&quot;) Order order,
+                                  Principal principal,
+                                  @RequestParam(value = &quot;firstName&quot;, required = false, defaultValue = &quot;&quot;) String firstName,
+                                  @RequestParam(value = &quot;lastName&quot;, required = false, defaultValue = &quot;&quot;) String lastName,
+                                  @RequestParam(value = &quot;phone&quot;, required = false, defaultValue = &quot;&quot;) String phone,
+                                  @RequestParam(value = &quot;shippingAddress&quot;, required = false, defaultValue = &quot;&quot;) String shippingAddress,
+                                  @RequestParam(value = &quot;paymentMethod&quot;, required = false, defaultValue = &quot;COD&quot;) String paymentMethod,
+                                  Model model) {
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L86">            return &quot;redirect:/login&quot;;</span>
+        }
+
+<span class="fc" id="L89">        User user = userService.findByEmail(principal.getName());</span>
+<span class="fc" id="L90">        List&lt;Cart&gt; cartItems = cartRepository.findByUser(user);</span>
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (cartItems.isEmpty()) {</span>
+<span class="nc" id="L93">            return &quot;redirect:/cart/view&quot;;</span>
+        }
+
+<span class="fc" id="L96">        double subtotal = 0;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (Cart cart : cartItems) {</span>
+<span class="fc" id="L98">            subtotal += cart.getProduct().getPrice() * cart.getQuantity();</span>
+<span class="fc" id="L99">        }</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        double shipping = (subtotal &gt;= 500) ? 0 : 30;</span>
+<span class="fc" id="L101">        double tva = subtotal * 0.20;</span>
+<span class="fc" id="L102">        double total = subtotal + shipping + tva;</span>
+
+        try {
+<span class="fc" id="L105">            order.setUserId(user.getId());</span>
+<span class="fc" id="L106">            order.setTotalAmount(total);</span>
+<span class="fc" id="L107">            order.setStatus(&quot;EN_COURS&quot;);</span>
+<span class="fc" id="L108">            order.setPaymentMethod(paymentMethod);</span>
+
+<span class="fc" id="L110">            String adresseComplete = &quot;Nom: &quot; + firstName + &quot; &quot; + lastName + &quot; | Tél: &quot; + phone + &quot; | Addr: &quot; + shippingAddress;</span>
+<span class="fc" id="L111">            order.setShippingAddress(adresseComplete);</span>
+
+<span class="fc" id="L113">            List&lt;OrderItem&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">            for (Cart cart : cartItems) {</span>
+<span class="fc" id="L115">                Product product = cart.getProduct();</span>
+<span class="fc" id="L116">                OrderItem item = new OrderItem();</span>
+<span class="fc" id="L117">                item.setProductName(product.getName());</span>
+<span class="fc" id="L118">                item.setPrice(product.getPrice());</span>
+<span class="fc" id="L119">                item.setQuantity(cart.getQuantity());</span>
+<span class="fc" id="L120">                item.setOrder(order);</span>
+<span class="fc" id="L121">                items.add(item);</span>
+<span class="fc" id="L122">            }</span>
+<span class="fc" id="L123">            order.setItems(items);</span>
+
+<span class="fc" id="L125">            orderRepository.save(order);</span>
+<span class="fc" id="L126">            cartRepository.deleteAll(cartItems);</span>
+
+<span class="fc" id="L128">            return &quot;redirect:/order/confirmation&quot;;</span>
+
+<span class="nc" id="L130">        } catch (Exception e) {</span>
+<span class="nc" id="L131">            System.err.println(&quot;ERREUR CRITIQUE COMMANDE : &quot; + e.getMessage());</span>
+<span class="nc" id="L132">            e.printStackTrace();</span>
+            
+<span class="nc" id="L134">            model.addAttribute(&quot;subtotal&quot;, subtotal);</span>
+<span class="nc" id="L135">            model.addAttribute(&quot;shipping&quot;, shipping);</span>
+<span class="nc" id="L136">            model.addAttribute(&quot;tva&quot;, tva);</span>
+<span class="nc" id="L137">            model.addAttribute(&quot;total&quot;, total);</span>
+<span class="nc" id="L138">            model.addAttribute(&quot;error&quot;, &quot;Erreur lors de la validation : &quot; + e.getMessage());</span>
+<span class="nc" id="L139">            return &quot;order/checkout&quot;;</span>
+        }
+    }
+
+    @GetMapping(&quot;/confirmation&quot;)
+    public String orderConfirmation() {
+<span class="nc" id="L145">        return &quot;order/confirmation&quot;;</span>
+    }
+
+    @GetMapping(&quot;/my-purchases&quot;)
+    public String myPurchases(Model model, Principal principal) {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L151">            return &quot;redirect:/login&quot;;</span>
+        }
+<span class="nc" id="L153">        User user = userService.findByEmail(principal.getName());</span>
+<span class="nc" id="L154">        List&lt;Order&gt; orders = orderService.getOrdersByUser(user);</span>
+<span class="nc" id="L155">        model.addAttribute(&quot;orders&quot;, orders);</span>
+<span class="nc" id="L156">        return &quot;order/my-purchases&quot;;</span>
+    }
+
+    // ==========================================
+    // NOUVELLES MÉTHODES ADMIN CORRIGÉES &amp; SÉCURISÉES
+    // ==========================================
+
+    @GetMapping(&quot;/admin/list&quot;)
+    public String listAdminOrders(Model model) {
+        try {
+            // Récupération sécurisée des commandes depuis le repository
+<span class="nc" id="L167">            List&lt;Order&gt; orders = orderRepository.findAll();</span>
+            
+<span class="nc bnc" id="L169" title="All 2 branches missed.">            if (orders == null) {</span>
+<span class="nc" id="L170">                orders = new ArrayList&lt;&gt;();</span>
+            }
+            
+<span class="nc" id="L173">            model.addAttribute(&quot;orders&quot;, orders);</span>
+            
+<span class="nc" id="L175">        } catch (Exception e) {</span>
+            // Écrit le problème exact de base de données dans ta console d'IDE
+<span class="nc" id="L177">            System.err.println(&quot;❌ CRASH INTERCEPTÉ (FINDALL) : &quot; + e.getMessage());</span>
+<span class="nc" id="L178">            e.printStackTrace();</span>
+            
+            // On injecte une liste vide pour forcer l'affichage de la page HTML sans planter
+<span class="nc" id="L181">            model.addAttribute(&quot;orders&quot;, new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L182">            model.addAttribute(&quot;dbError&quot;, &quot;Erreur base de données : &quot; + e.getMessage());</span>
+<span class="nc" id="L183">        }</span>
+        
+        // CORRECTION DU NOM ET DU DOSSIER : dossier &quot;admin&quot;, fichier &quot;orders-management&quot;
+<span class="nc" id="L186">        return &quot;admin/orders-management&quot;; </span>
+    }
+
+    @PostMapping(&quot;/admin/update-status/{id}&quot;)
+    public String updateOrderStatus(@PathVariable(&quot;id&quot;) Long id, @RequestParam(&quot;status&quot;) String status) {
+        try {
+<span class="nc" id="L192">            Order order = orderRepository.findById(id).orElse(null);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            if (order != null) {</span>
+<span class="nc" id="L194">                order.setStatus(status);</span>
+<span class="nc" id="L195">                orderRepository.save(order);</span>
+            }
+<span class="nc" id="L197">        } catch (Exception e) {</span>
+<span class="nc" id="L198">            System.err.println(&quot;❌ CRASH INTERCEPTÉ (UPDATE STATUS) : &quot; + e.getMessage());</span>
+<span class="nc" id="L199">            e.printStackTrace();</span>
+<span class="nc" id="L200">        }</span>
+        
+        // Redirection propre vers l'URL admin de gestion
+<span class="nc" id="L203">        return &quot;redirect:/order/admin/list&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

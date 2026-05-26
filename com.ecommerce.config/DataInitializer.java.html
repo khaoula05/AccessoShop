@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataInitializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AccessoShop</a> &gt; <a href="index.source.html" class="el_package">com.ecommerce.config</a> &gt; <span class="el_source">DataInitializer.java</span></div><h1>DataInitializer.java</h1><pre class="source lang-java linenums">package com.ecommerce.config;
+
+import com.ecommerce.entity.Product;
+import com.ecommerce.entity.User;
+import com.ecommerce.repository.ProductRepository;
+import com.ecommerce.repository.UserRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+@Component
+public class DataInitializer implements CommandLineRunner {
+
+    private final ProductRepository productRepo;
+    private final UserRepository userRepo;
+    private final PasswordEncoder encoder;
+
+<span class="nc" id="L18">    public DataInitializer(ProductRepository productRepo, UserRepository userRepo, PasswordEncoder encoder) {</span>
+<span class="nc" id="L19">        this.productRepo = productRepo;</span>
+<span class="nc" id="L20">        this.userRepo = userRepo;</span>
+<span class="nc" id="L21">        this.encoder = encoder;</span>
+<span class="nc" id="L22">    }</span>
+
+    @Override
+    public void run(String... args) {
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (userRepo.count() == 0) {</span>
+<span class="nc" id="L27">            User admin = new User();</span>
+<span class="nc" id="L28">            admin.setEmail(&quot;admin@accesso.com&quot;);</span>
+<span class="nc" id="L29">            admin.setPassword(encoder.encode(&quot;admin123&quot;));</span>
+<span class="nc" id="L30">            admin.setName(&quot;Administrateur&quot;);</span>
+<span class="nc" id="L31">            admin.setRole(&quot;ADMIN&quot;);</span>
+<span class="nc" id="L32">            userRepo.save(admin);</span>
+
+<span class="nc" id="L34">            User user = new User();</span>
+<span class="nc" id="L35">            user.setEmail(&quot;test@accesso.com&quot;);</span>
+<span class="nc" id="L36">            user.setPassword(encoder.encode(&quot;test123&quot;));</span>
+<span class="nc" id="L37">            user.setName(&quot;Client Test&quot;);</span>
+<span class="nc" id="L38">            user.setRole(&quot;USER&quot;);</span>
+<span class="nc" id="L39">            userRepo.save(user);</span>
+        }
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (productRepo.count() == 0) {</span>
+            // MODIFICATION ICI : Utilisation de vos fichiers locaux réels via le chemin virtuel /uploads/
+<span class="nc" id="L44">            productRepo.save(createProduct(&quot;Montre Élégante Or&quot;, 299.99, &quot;Montre classique dorée&quot;, &quot;montre&quot;, &quot;/uploads/montre1.png&quot;));</span>
+<span class="nc" id="L45">            productRepo.save(createProduct(&quot;Collier Perles Luxe&quot;, 89.99, &quot;Collier délicat avec perles&quot;, &quot;collier&quot;, &quot;/uploads/collier1.png&quot;));</span>
+<span class="nc" id="L46">            productRepo.save(createProduct(&quot;Bague Diamant&quot;, 499.99, &quot;Bague en argent et diamant&quot;, &quot;bague&quot;, &quot;/uploads/bague1.png&quot;));</span>
+<span class="nc" id="L47">            productRepo.save(createProduct(&quot;Bracelet Argent&quot;, 59.99, &quot;Bracelet ajustable 925&quot;, &quot;bracelet&quot;, &quot;/uploads/bracelet1.png&quot;));</span>
+<span class="nc" id="L48">            productRepo.save(createProduct(&quot;Boucles d'oreilles&quot;, 45.00, &quot;Boucles style créoles&quot;, &quot;boucle&quot;, &quot;/uploads/gold1.png&quot;));</span>
+        }
+<span class="nc" id="L50">    }</span>
+
+    private Product createProduct(String name, double price, String desc, String category, String imageUrl) {
+<span class="nc" id="L53">        Product p = new Product();</span>
+<span class="nc" id="L54">        p.setName(name);</span>
+<span class="nc" id="L55">        p.setPrice(price);</span>
+<span class="nc" id="L56">        p.setDescription(desc);</span>
+<span class="nc" id="L57">        p.setCategory(category.toLowerCase());</span>
+<span class="nc" id="L58">        p.setImageUrl(imageUrl);</span>
+<span class="nc" id="L59">        p.setStock(10);</span>
+<span class="nc" id="L60">        p.setRating(4.5);</span>
+<span class="nc" id="L61">        p.setFeatured(true);</span>
+<span class="nc" id="L62">        return p;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
