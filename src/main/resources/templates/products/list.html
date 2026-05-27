@@ -70,8 +70,9 @@
                     </div>
                 </a>
                 <div sec:authorize="hasRole('ADMIN')" class="admin-card-actions">
+                    <a th:href="@{/products/admin/edit/{id}(id=${product.id})}">Modifier</a>
                     <a th:href="@{/products/admin/delete/{id}(id=${product.id})}"
-                       onclick="return confirm('Supprimer ce produit ?')">Supprimer</a>
+                        onclick="return confirm('Supprimer ce produit ?')">Supprimer</a>
                 </div>
             </div>
         </div>

@@ -85,6 +85,59 @@ public ProductController(ProductService service, Cloudinary cloudinary) {
         return "admin/product-form";
     }
 
+    @GetMapping("/admin/edit/{id}")
+@PreAuthorize("hasRole('ADMIN')")
+public String editForm(@PathVariable Long id, Model model) {
+    Product product = service.getProductById(id);
+    if (product == null) return "redirect:/products";
+    model.addAttribute("product", product);
+    model.addAttribute("categories", categories);
+    return "admin/product-form";
+}
+
+@PostMapping("/admin/update/{id}")
+@PreAuthorize("hasRole('ADMIN')")
+public String update(@PathVariable Long id,
+                     @Valid @ModelAttribute Product product,
+                     BindingResult result,
+                     @RequestParam("imageFile") MultipartFile imageFile,
+                     Model model) {
+
+    if (result.hasErrors()) {
+        model.addAttribute("categories", categories);
+        return "admin/product-form";
+    }
+
+    try {
+        Product existing = service.getProductById(id);
+        product.setId(id);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            Map uploadResult = cloudinary.uploader().upload(
+                imageFile.getBytes(),
+                ObjectUtils.emptyMap()
+            );
+            product.setImageUrl((String) uploadResult.get("secure_url"));
+        } else {
+            // Garde l'ancienne image
+            product.setImageUrl(existing.getImageUrl());
+        }
+
+        if (product.getCategory() != null) {
+            product.setCategory(product.getCategory().toLowerCase());
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        model.addAttribute("error", "Erreur lors du traitement de l'image.");
+        model.addAttribute("categories", categories);
+        return "admin/product-form";
+    }
+
+    service.saveProduct(product);
+    return "redirect:/products?category=" + product.getCategory();
+}
+
     @PostMapping("/admin/save")
     @PreAuthorize("hasRole('ADMIN')")
     public String save(@Valid @ModelAttribute Product product, 
