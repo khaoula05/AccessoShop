@@ -24,7 +24,7 @@
 <div class="product-detail">
     <div class="product-gallery">
         <div class="product-main-img">
-            <img th:src="${product.imageUrl != null && product.imageUrl.startsWith('/uploads/') ? product.imageUrl : '/uploads/' + product.imageUrl}" 
+            <img th:src="${product.imageUrl}"
                  th:alt="${product.name}"
                  onerror="this.onerror=null; this.src='/uploads/3ec243e8-9e98-4338-a63e-f82f19c79b41_Screenshot 2026-05-23 154032.png';"/>
         </div>
@@ -99,7 +99,7 @@
         <div th:each="rp, iter : ${related}" th:if="${iter.index < 4 and rp.id != product.id}" class="product-card">
             <a th:href="@{/products/{id}(id=${rp.id})}" style="display:block;color:inherit;">
                 <div class="product-img">
-                    <img th:src="${rp.imageUrl != null && rp.imageUrl.startsWith('/uploads/') ? rp.imageUrl : '/uploads/' + rp.imageUrl}" 
+                    <img th:src="${rp.imageUrl}"
                          th:alt="${rp.name}" 
                          onerror="this.onerror=null; this.src='/uploads/3ec243e8-9e98-4338-a63e-f82f19c79b41_Screenshot 2026-05-23 154032.png';"/>
                 </div>
