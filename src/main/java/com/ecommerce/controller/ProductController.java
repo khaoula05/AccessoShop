@@ -10,14 +10,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/products")
@@ -26,9 +25,12 @@ public class ProductController {
     private final ProductService service;
     private final List<String> categories = List.of("boucle", "montre", "collier", "bague", "bracelet");
 
-    public ProductController(ProductService service) {
-        this.service = service;
-    }
+    private final Cloudinary cloudinary;
+
+public ProductController(ProductService service, Cloudinary cloudinary) {
+    this.service = service;
+    this.cloudinary = cloudinary;
+}
 
     @GetMapping
     public String list(@RequestParam(required = false) String category,
@@ -100,24 +102,15 @@ public class ProductController {
         }
 
         try {
+            // NOUVEAU CODE - Cloudinary
             if (imageFile != null && !imageFile.isEmpty()) {
-                String uploadDirectory = "C:" + File.separator + "accessoshop-uploads" + File.separator;
-
-                File folder = new File(uploadDirectory);
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-
-                String originalFilename = imageFile.getOriginalFilename();
-                String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
-
-                Path path = Paths.get(uploadDirectory + uniqueFilename);
-                Files.write(path, imageFile.getBytes());
-
-                // MODIFICATION ICI : On utilise le préfixe /uploads/ cohérent avec WebConfig
-                product.setImageUrl("/uploads/" + uniqueFilename);
-                
-            } else if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
+                Map uploadResult = cloudinary.uploader().upload(
+                    imageFile.getBytes(),
+                    ObjectUtils.emptyMap()
+                );
+                product.setImageUrl((String) uploadResult.get("secure_url"));
+}
+            else if (product.getImageUrl() == null || product.getImageUrl().isBlank()) {
                 product.setImageUrl(defaultImageFor(product.getCategory()));
             }
             
