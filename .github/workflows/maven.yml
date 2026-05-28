@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: Java CI with Maven AccessoShop
+=======
+name: Java CI/CD Pipeline - AccessoShop
+>>>>>>> 98ac500edfb8675a43a0ac9a3cf132bc9e677d8b
 run-name: 'Build, Test & Quality Scan - branch: ${{ github.ref_name }}'
 
 on:

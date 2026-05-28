@@ -46,10 +46,7 @@
 </header>
 
 <main class="admin-page">
-    <form th:action="@{/products/admin/save}" th:object="${product}" method="post" enctype="multipart/form-data" class="admin-form">
-        <input type="hidden" th:field="*{id}"/>
-        <input type="hidden" th:field="*{imageUrl}"/>
-
+    <form th:action="${product.id != null ? '/products/admin/update/' + product.id : '/products/admin/save'}" th:object="${product}" method="post" enctype="multipart/form-data" class="admin-form">
         <div class="form-group">
             <label for="name">Nom du produit</label>
             <input id="name" type="text" th:field="*{name}" placeholder="Ex: Bracelet argent premium" required/>
