@@ -49,7 +49,7 @@
                 <a th:href="@{/products/{id}(id=${product.id})}" style="display:block;color:inherit;">
                     <div class="product-img">
                         <div class="product-badge" th:if="${product.featured}">Favori</div>
-                        <img th:src="${product.imageUrl != null && product.imageUrl.startsWith('/uploads/') ? product.imageUrl : '/uploads/' + product.imageUrl}" 
+                        <img th:src="${product.imageUrl}"
                              th:alt="${product.name}" 
                              onerror="this.onerror=null; if(this.src.endsWith('.jpg')) { this.src=this.src.replace('.jpg', '.png'); } else { this.src=this.src + '.jpg'; }"/>
                     </div>
@@ -70,8 +70,9 @@
                     </div>
                 </a>
                 <div sec:authorize="hasRole('ADMIN')" class="admin-card-actions">
+                    <a th:href="@{/products/admin/edit/{id}(id=${product.id})}">Modifier</a>
                     <a th:href="@{/products/admin/delete/{id}(id=${product.id})}"
-                       onclick="return confirm('Supprimer ce produit ?')">Supprimer</a>
+                        onclick="return confirm('Supprimer ce produit ?')">Supprimer</a>
                 </div>
             </div>
         </div>
