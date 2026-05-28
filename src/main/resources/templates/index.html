@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -36,7 +37,7 @@
         <h2>Nos Collections</h2>
         <div class="section-divider"></div>
     </div>
-    <div class="categories-grid">
+    <div class="categories-grid" style="grid-template-columns: repeat(5, 1fr);">
         <a th:href="@{/products(category=montre)}" class="category-card">
             <img src="https://res.cloudinary.com/duh7dcr8a/image/upload/v1779977302/Montres_ckcoio.png" alt="Montres"/>
             <div class="category-overlay"><h3>Montres</h3></div>
@@ -52,6 +53,11 @@
         <a th:href="@{/products(category=bracelet)}" class="category-card">
             <img src="https://res.cloudinary.com/duh7dcr8a/image/upload/v1779977301/bracelets_qtfkjb.png" alt="Bracelets"/>
             <div class="category-overlay"><h3>Bracelets</h3></div>
+        </a>
+        <a th:href="@{/products(category=boucle)}" class="category-card">
+            <img src="https://res.cloudinary.com/duh7dcr8a/image/upload/v1779994978/Boucles_mchtmk.png" alt="Boucles d'oreilles"
+                 onerror="this.onerror=null; this.src='/uploads/gold3.png';"/>
+            <div class="category-overlay"><h3>Boucles</h3></div>
         </a>
     </div>
 </section>

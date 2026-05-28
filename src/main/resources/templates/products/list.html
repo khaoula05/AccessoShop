@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -23,34 +24,23 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <header class="page-header">
-        <p class="eyebrow" th:text="${view == 'gallery' ? 'Galerie Exclusive' : 'Collection ' + currentCategory}">Collection</p>
-        <h1 th:text="${view == 'gallery' ? 'Nos Collections' : 'Accessoires disponibles'}">Nos Collections</h1>
-        <p class="page-subtitle" th:if="${view == 'gallery'}">Pièces artisanales sélectionnées avec soin</p>
+        <p class="eyebrow" th:text="'Collection ' + ${currentCategory}">Collection</p>
+        <h1>Accessoires disponibles</h1>
         <div sec:authorize="hasRole('ADMIN')" class="admin-header-actions">
             <a th:href="@{/products/admin/new}" class="btn-primary">Ajouter un produit</a>
         </div>
     </header>
 
     <main class="container-fluid">
-        <div class="shop-toolbar">
-            </div>
+        <div class="shop-toolbar"></div>
 
-        <div th:if="${view == 'gallery'}" class="products-grid">
-            <div th:each="imgName : ${localImages}" class="gallery-item animate-in">
-                <div class="img-container">
-                    <img th:src="@{'/uploads/' + ${imgName}}" th:alt="${imgName}" 
-                         onerror="this.onerror=null; if(this.src.endsWith('.jpg')) { this.src=this.src.replace('.jpg', '.png'); } else if(this.src.endsWith('.png')) { this.src=this.src.replace('.png', '.jpg'); }"/>
-                </div>
-            </div>
-        </div>
-
-        <div th:if="${view == 'products'}" class="products-grid">
+        <div class="products-grid">
             <div th:each="product : ${products}" class="product-card animate-in">
                 <a th:href="@{/products/{id}(id=${product.id})}" style="display:block;color:inherit;">
                     <div class="product-img">
                         <div class="product-badge" th:if="${product.featured}">Favori</div>
                         <img th:src="${product.imageUrl}"
-                             th:alt="${product.name}" 
+                             th:alt="${product.name}"
                              onerror="this.onerror=null; if(this.src.endsWith('.jpg')) { this.src=this.src.replace('.jpg', '.png'); } else { this.src=this.src + '.jpg'; }"/>
                     </div>
                     <div class="product-info">
@@ -75,6 +65,12 @@
                         onclick="return confirm('Supprimer ce produit ?')">Supprimer</a>
                 </div>
             </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(products)}" class="empty-state">
+            <h2>Aucun produit disponible</h2>
+            <p>Revenez bientôt pour découvrir nos nouvelles collections.</p>
+            <a th:href="@{/}" class="btn-primary" style="display:inline-flex;margin-top:1.5rem;">← Retour à l'accueil</a>
         </div>
     </main>
 
