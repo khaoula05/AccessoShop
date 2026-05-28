@@ -1,5 +1,6 @@
 package com.ecommerce.controller;
 
+import com.cloudinary.Cloudinary;
 import com.ecommerce.entity.Product;
 import com.ecommerce.service.ProductService;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,10 @@ class ProductControllerTest {
 
     @MockBean
     private ProductService service;
+
+    // Cloudinary est une dépendance du constructeur de ProductController
+    @MockBean
+    private Cloudinary cloudinary;
 
     @Test
     void shouldDisplayProductsPage() throws Exception {

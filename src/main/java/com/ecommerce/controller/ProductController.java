@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.cloudinary.Cloudinary;
@@ -36,35 +35,27 @@ public ProductController(ProductService service, Cloudinary cloudinary) {
     public String list(@RequestParam(required = false) String category,
                        @RequestParam(required = false) String search,
                        Model model) {
-        
+
         List<Product> products = new ArrayList<>();
 
         if (search != null && !search.isBlank()) {
             products = service.searchProducts(search);
             model.addAttribute("search", search);
             model.addAttribute("currentCategory", "recherche");
-            model.addAttribute("view", "products");
-        }
-        else if (category == null || category.equalsIgnoreCase("boutique")) {
-            List<String> localImages = Arrays.asList(
-                "montre1.png", "collier1.png", 
-                "bague1.png", "bracelet1.png", 
-                "gold1.png", "gold3.png"
-            );
-            model.addAttribute("localImages", localImages);
-            model.addAttribute("currentCategory", "boutique");
-            model.addAttribute("view", "gallery"); 
-        } 
-        else {
+        } else if (category != null && !category.isBlank()) {
             products = service.getProductsByCategory(category.toLowerCase());
             model.addAttribute("currentCategory", category.toLowerCase());
-            model.addAttribute("view", "products");
+        } else {
+            // Afficher tous les produits (galerie supprimée)
+            products = service.getAllProducts();
+            model.addAttribute("currentCategory", "boutique");
         }
-        
+
+        model.addAttribute("view", "products");
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
-        
-        return "products/list"; 
+
+        return "products/list";
     }
 
     @GetMapping("/{id}")
