@@ -43,7 +43,7 @@
             </div>
             <div style="text-align:right;">
                 <div class="cart-item-sub" th:text="${#numbers.formatDecimal(item.product.price * (item.quantity != null ? item.quantity : 1), 1, 2)} + ' MAD'">0 MAD</div>
-                <a th:href="@{/cart/remove/{id}(id=${item.product.id})}" class="remove-btn" style="display:inline-block;margin-top:0.5rem;" title="Supprimer">Supprimer</a>
+                <a th:href="@{/cart/remove/{id}(id=${item.id})}" class="remove-btn" style="display:inline-block;margin-top:0.5rem;" title="Supprimer">Supprimer</a>
             </div>
         </div>
         
