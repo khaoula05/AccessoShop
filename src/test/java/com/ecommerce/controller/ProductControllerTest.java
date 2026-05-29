@@ -1,6 +1,7 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.entity.Product;
+import com.cloudinary.Cloudinary;
 import com.ecommerce.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,10 @@ class ProductControllerTest {
 
     @MockBean
     private ProductService service;
+
+    // Cloudinary requis par le constructeur de ProductController
+    @MockBean
+    private Cloudinary cloudinary;
 
     @Test
     void shouldDisplayProductsPage() throws Exception {
