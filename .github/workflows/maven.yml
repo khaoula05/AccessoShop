@@ -1,9 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 name: Java CI with Maven AccessoShop
 =======
 name: Java CI/CD Pipeline - AccessoShop
 >>>>>>> 98ac500edfb8675a43a0ac9a3cf132bc9e677d8b
 run-name: 'Build, Test & Quality Scan - branch: ${{ github.ref_name }}'
+=======
+name: Java CI/CD Pipeline - AccessoShop
+run-name: 'Build, Test & Quality Scan '
+>>>>>>> cc9345beec88e1887f4d2f4904643ac8d23f0cbc
 
 on:
   push:
@@ -25,6 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       # 2. Installer Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -32,9 +38,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
       # 3. Compiler et lancer les tests
       - name: Build and Test with Maven
         run: mvn -B clean verify --file pom.xml
+
       # 4. Analyse SonarCloud
       - name: SonarCloud Quality Analysis
         env:
