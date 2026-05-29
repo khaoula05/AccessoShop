@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
@@ -9,60 +10,88 @@
     <nav class="navbar">
         <a th:href="@{/}" class="navbar-brand">Accesso<span>Shop</span></a>
 
-        <ul> 
+        <!-- ===== NAV CLIENT (non-admin) ===== -->
+        <ul sec:authorize="!hasRole('ADMIN')">
+            <li><a th:href="@{/}">Accueil</a></li>
             <li>
-                <a th:href="@{/}">Accueil</a>
-            </li> 
-            
-            <li>
-                <a th:href="@{/products(category=boucle)}" 
-                   th:classappend="${currentCategory == 'boucle' || currentCategory == 'BOUCLES'} ? 'active'">Boucles</a>
+                <a th:href="@{/products(category=boucle)}"
+                   th:classappend="${currentCategory == 'boucle'} ? 'active'">Boucles</a>
             </li>
             <li>
-                <a th:href="@{/products(category=montre)}" 
-                   th:classappend="${currentCategory == 'montre' || currentCategory == 'MONTRES'} ? 'active'">Montres</a>
+                <a th:href="@{/products(category=montre)}"
+                   th:classappend="${currentCategory == 'montre'} ? 'active'">Montres</a>
             </li>
             <li>
-                <a th:href="@{/products(category=collier)}" 
-                   th:classappend="${currentCategory == 'collier' || currentCategory == 'COLLIERS'} ? 'active'">Colliers</a>
+                <a th:href="@{/products(category=collier)}"
+                   th:classappend="${currentCategory == 'collier'} ? 'active'">Colliers</a>
             </li>
             <li>
-                <a th:href="@{/products(category=bague)}" 
-                   th:classappend="${currentCategory == 'bague' || currentCategory == 'BAGUES'} ? 'active'">Bagues</a>
+                <a th:href="@{/products(category=bague)}"
+                   th:classappend="${currentCategory == 'bague'} ? 'active'">Bagues</a>
             </li>
             <li>
-                <a th:href="@{/products(category=bracelet)}" 
-                   th:classappend="${currentCategory == 'bracelet' || currentCategory == 'BRACELETS'} ? 'active'">Bracelets</a>
+                <a th:href="@{/products(category=bracelet)}"
+                   th:classappend="${currentCategory == 'bracelet'} ? 'active'">Bracelets</a>
             </li>
-            
-            <li sec:authorize="isAuthenticated() && !hasRole('ADMIN')">
+            <li sec:authorize="isAuthenticated()">
                 <a th:href="@{/order/my-purchases}">Mes Achats</a>
             </li>
-            
-            <li sec:authorize="hasRole('ADMIN')">
-                <a th:href="@{/products/admin/new}">Admin</a>
-            </li>
-            <li sec:authorize="hasRole('ADMIN')">
-                <a th:href="@{/order/admin/list}" style="color: #b45309; font-weight: 600;">📦 Gestion Commandes</a>
-            </li>
         </ul>
-        
+
+        <!-- ===== NAV ADMIN (simplifié) ===== -->
+        <ul sec:authorize="hasRole('ADMIN')">
+            <li><a th:href="@{/}">Accueil</a></li>
+            <li><a th:href="@{/products}">Boutique</a></li>
+        </ul>
+
+        <!-- ===== ACTIONS DROITE ===== -->
         <div class="nav-actions">
+
+            <!-- Visiteur non connecté -->
             <div sec:authorize="isAnonymous()" style="display:flex;gap:10px;">
-                <a th:href="@{/login}" class="btn-outline">Connexion</a>
+                <a th:href="@{/login}"    class="btn-outline">Connexion</a>
                 <a th:href="@{/register}" class="btn-outline">Inscription</a>
             </div>
-            
-            <div sec:authorize="isAuthenticated()" style="display:flex;align-items:center;gap:15px;">
-                <span style="font-size:0.85rem;color:var(--mid-gray);">
-                    Bonjour, <span sec:authentication="name" style="color:var(--gold);font-weight:600;">Utilisateur</span>
+
+            <!-- Admin connecté -->
+            <div sec:authorize="hasRole('ADMIN')" style="display:flex;align-items:center;gap:10px;">
+                <a th:href="@{/products/admin/new}" class="btn-outline">
+                    ✚ Produits
+                </a>
+                <a th:href="@{/order/admin/list}" class="btn-admin-orders">
+                    📦 Commandes
+                </a>
+                <span class="nav-greeting">
+                    <span sec:authentication="name">Admin</span>
                 </span>
                 <form th:action="@{/logout}" method="post" style="margin:0;">
-                    <button type="submit" class="btn-outline" style="cursor:pointer;background:none;font-family:var(--font-body);">Déconnexion</button>
+                    <button type="submit" class="btn-outline"
+                            style="cursor:pointer;background:none;font-family:var(--font-body);">
+                        Déconnexion
+                    </button>
                 </form>
             </div>
-            
-            <a th:href="@{/cart}" class="cart-btn">🛒 Panier</a>
+
+            <!-- Client connecté -->
+            <div sec:authorize="isAuthenticated() && !hasRole('ADMIN')"
+                 style="display:flex;align-items:center;gap:12px;">
+                <span class="nav-greeting">
+                    Bonjour,
+                    <span sec:authentication="name"
+                          style="color:var(--gold);font-weight:600;">Utilisateur</span>
+                </span>
+                <form th:action="@{/logout}" method="post" style="margin:0;">
+                    <button type="submit" class="btn-outline"
+                            style="cursor:pointer;background:none;font-family:var(--font-body);">
+                        Déconnexion
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panier (clients uniquement) -->
+            <a th:href="@{/cart}" class="cart-btn" sec:authorize="!hasRole('ADMIN')">
+                🛒 Panier
+            </a>
         </div>
     </nav>
 </div>

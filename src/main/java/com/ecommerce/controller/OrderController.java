@@ -64,8 +64,8 @@ public class OrderController {
         model.addAttribute("shipping", shipping);
         model.addAttribute("tva", tva);
         model.addAttribute("total", total);
-        model.addAttribute("cartItems", cartItems);   // ← images produits pour le récap paiement
-        
+        model.addAttribute("cartItems", cartItems);
+
         Order order = new Order();
         order.setTotalAmount(total);
         model.addAttribute("order", order);
