@@ -1,5 +1,5 @@
 name: Java CI/CD Pipeline - AccessoShop
-run-name: 'CI / CD Build  Test & Quality Scan - branch: ${{ github.ref_name }}'
+run-name: "Build Test - ${{ github.actor }} - ${{ github.ref_name }}"}'
 
 on:
   push:
