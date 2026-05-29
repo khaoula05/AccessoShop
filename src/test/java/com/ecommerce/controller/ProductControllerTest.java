@@ -1,7 +1,7 @@
 package com.ecommerce.controller;
 
-import com.cloudinary.Cloudinary;
 import com.ecommerce.entity.Product;
+import com.cloudinary.Cloudinary;
 import com.ecommerce.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ class ProductControllerTest {
     @MockBean
     private ProductService service;
 
-    // Cloudinary est une dépendance du constructeur de ProductController
+    // Cloudinary requis par le constructeur de ProductController
     @MockBean
     private Cloudinary cloudinary;
 

@@ -10,9 +10,10 @@
     <nav class="navbar">
         <a th:href="@{/}" class="navbar-brand">Accesso<span>Shop</span></a>
 
-        <!-- ===== NAV CLIENT (non-admin) ===== -->
-        <ul sec:authorize="!hasRole('ADMIN')">
-            <li><a th:href="@{/}">Accueil</a></li>
+        <ul>
+            <li>
+                <a th:href="@{/}">Accueil</a>
+            </li>
             <li>
                 <a th:href="@{/products(category=boucle)}"
                    th:classappend="${currentCategory == 'boucle'} ? 'active'">Boucles</a>
@@ -33,18 +34,18 @@
                 <a th:href="@{/products(category=bracelet)}"
                    th:classappend="${currentCategory == 'bracelet'} ? 'active'">Bracelets</a>
             </li>
-            <li sec:authorize="isAuthenticated()">
+            <li sec:authorize="isAuthenticated() && !hasRole('ADMIN')">
                 <a th:href="@{/order/my-purchases}">Mes Achats</a>
+            </li>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/products/admin/new}">Admin</a>
+            </li>
+            <li sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/order/admin/list}"
+                   style="color:var(--gold-dark);font-weight:600;"> Commandes</a>
             </li>
         </ul>
 
-        <!-- ===== NAV ADMIN (simplifié) ===== -->
-        <ul sec:authorize="hasRole('ADMIN')">
-            <li><a th:href="@{/}">Accueil</a></li>
-            <li><a th:href="@{/products}">Boutique</a></li>
-        </ul>
-
-        <!-- ===== ACTIONS DROITE ===== -->
         <div class="nav-actions">
 
             <!-- Visiteur non connecté -->
@@ -53,29 +54,10 @@
                 <a th:href="@{/register}" class="btn-outline">Inscription</a>
             </div>
 
-            <!-- Admin connecté -->
-            <div sec:authorize="hasRole('ADMIN')" style="display:flex;align-items:center;gap:10px;">
-                <a th:href="@{/products/admin/new}" class="btn-outline">
-                    ✚ Produits
-                </a>
-                <a th:href="@{/order/admin/list}" class="btn-admin-orders">
-                    📦 Commandes
-                </a>
-                <span class="nav-greeting">
-                    <span sec:authentication="name">Admin</span>
-                </span>
-                <form th:action="@{/logout}" method="post" style="margin:0;">
-                    <button type="submit" class="btn-outline"
-                            style="cursor:pointer;background:none;font-family:var(--font-body);">
-                        Déconnexion
-                    </button>
-                </form>
-            </div>
-
-            <!-- Client connecté -->
-            <div sec:authorize="isAuthenticated() && !hasRole('ADMIN')"
-                 style="display:flex;align-items:center;gap:12px;">
-                <span class="nav-greeting">
+            <!-- Utilisateur connecté -->
+            <div sec:authorize="isAuthenticated()"
+                 style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:0.82rem;color:var(--mid-gray);white-space:nowrap;">
                     Bonjour,
                     <span sec:authentication="name"
                           style="color:var(--gold);font-weight:600;">Utilisateur</span>
@@ -88,10 +70,9 @@
                 </form>
             </div>
 
-            <!-- Panier (clients uniquement) -->
-            <a th:href="@{/cart}" class="cart-btn" sec:authorize="!hasRole('ADMIN')">
-                🛒 Panier
-            </a>
+            <!-- Panier — même style que les autres boutons -->
+            <a th:href="@{/cart}" class="btn-outline">🛒 Panier</a>
+
         </div>
     </nav>
 </div>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
@@ -29,9 +30,9 @@
         
         <div th:each="item : ${cartItems}" class="cart-item">
             <div class="cart-item-img">
-                <img th:src="${item.product.imageUrl != null && item.product.imageUrl.startsWith('/uploads/') ? item.product.imageUrl : '/uploads/' + item.product.imageUrl}" 
+                <img th:src="${item.product.imageUrl}"
                      th:alt="${item.product.name}"
-                     onerror="this.onerror=null; if(this.src.endsWith('.jpg')) { this.src=this.src.replace('.jpg', '.png'); } else { this.src=this.src + '.jpg'; }"/>
+                     onerror="this.onerror=null;this.src='/uploads/gold1.png';"/>
             </div>
             <div>
                 <div class="cart-item-name" th:text="${item.product.name}">Produit</div>

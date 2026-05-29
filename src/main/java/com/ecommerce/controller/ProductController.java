@@ -35,7 +35,7 @@ public ProductController(ProductService service, Cloudinary cloudinary) {
     public String list(@RequestParam(required = false) String category,
                        @RequestParam(required = false) String search,
                        Model model) {
-
+        
         List<Product> products = new ArrayList<>();
 
         if (search != null && !search.isBlank()) {
@@ -46,16 +46,15 @@ public ProductController(ProductService service, Cloudinary cloudinary) {
             products = service.getProductsByCategory(category.toLowerCase());
             model.addAttribute("currentCategory", category.toLowerCase());
         } else {
-            // Afficher tous les produits (galerie supprimée)
             products = service.getAllProducts();
             model.addAttribute("currentCategory", "boutique");
         }
-
         model.addAttribute("view", "products");
+        
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
-
-        return "products/list";
+        
+        return "products/list"; 
     }
 
     @GetMapping("/{id}")
