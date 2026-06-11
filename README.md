@@ -76,7 +76,7 @@ spring.datasource.password=VOTRE_MOT_DE_PASSE
 
 5. **Accéder au site**
 ```
-http://localhost:8082
+https://accessoshop-production.up.railway.app/
 ```
 
 ### Comptes de test
