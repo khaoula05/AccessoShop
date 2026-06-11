@@ -1,6 +1,6 @@
 # 🛍️ AccessoShop — E-Commerce d'Accessoires
 
-> Projet de fin de module — Site de vente en ligne d'accessoires (Montres, Sacs, Bijoux, Lunettes)
+> Projet de fin de module — Site de vente en ligne d'accessoires (boucles, colliers, montres, bracelets, bagues)
 > **BAC+3 Licence Informatique**
 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-green)
@@ -128,7 +128,7 @@ src/main/resources/
 
 ## 👥 Auteurs
 
-Projet réalisé dans le cadre du cours de développement web — Licence 3 Informatique.
+Projet réalisé dans le cadre du cours Ingénierie Logicielle Avancée  — Licence 3 Informatique.
 
 ---
 
