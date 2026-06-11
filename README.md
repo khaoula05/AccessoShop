@@ -134,4 +134,4 @@ Projet réalisé dans le cadre du cours de développement web — Licence 3 Info
 
 ## 📸 Aperçu
 
-Site accessible sur `http://localhost:8082` après lancement.
+Site accessible sur `https://accessoshop-production.up.railway.app/` après lancement.
