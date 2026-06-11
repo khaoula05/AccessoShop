@@ -12,7 +12,7 @@
 
 ## 📋 Description
 
-**AccessoShop** est un site e-commerce complet développé avec Spring Boot et Thymeleaf. Il permet aux utilisateurs de parcourir et d'acheter des accessoires de mode (montres, sacs à main, bijoux, lunettes).
+**AccessoShop** est un site e-commerce complet développé avec Spring Boot et Thymeleaf. Il permet aux utilisateurs de parcourir et d'acheter des accessoires de mode (boucles, colliers, montres, bracelets, bagues).
 
 ---
 
