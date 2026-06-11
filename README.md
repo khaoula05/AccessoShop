@@ -1,6 +1,6 @@
 # 🛍️ AccessoShop — E-Commerce d'Accessoires
 
-> Projet de fin de module — Site de vente en ligne d'accessoires (Montres, Sacs, Bijoux, Lunettes)
+> Projet de fin de module — Site de vente en ligne d'accessoires (boucles, colliers, montres, bracelets, bagues)
 > **BAC+3 Licence Informatique**
 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-green)
@@ -12,7 +12,7 @@
 
 ## 📋 Description
 
-**AccessoShop** est un site e-commerce complet développé avec Spring Boot et Thymeleaf. Il permet aux utilisateurs de parcourir et d'acheter des accessoires de mode (montres, sacs à main, bijoux, lunettes).
+**AccessoShop** est un site e-commerce complet développé avec Spring Boot et Thymeleaf. Il permet aux utilisateurs de parcourir et d'acheter des accessoires de mode (boucles, colliers, montres, bracelets, bagues).
 
 ---
 
@@ -76,7 +76,7 @@ spring.datasource.password=VOTRE_MOT_DE_PASSE
 
 5. **Accéder au site**
 ```
-http://localhost:8082
+https://accessoshop-production.up.railway.app/
 ```
 
 ### Comptes de test
@@ -128,10 +128,10 @@ src/main/resources/
 
 ## 👥 Auteurs
 
-Projet réalisé dans le cadre du cours de développement web — Licence 3 Informatique.
+Projet réalisé dans le cadre du cours Ingénierie Logicielle Avancée  — Licence 3 Informatique.
 
 ---
 
 ## 📸 Aperçu
 
-Site accessible sur `http://localhost:8082` après lancement.
+Site accessible sur `https://accessoshop-production.up.railway.app/` après lancement.
